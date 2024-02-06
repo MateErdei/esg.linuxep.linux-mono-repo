@@ -132,10 +132,10 @@ def add_osquery_restart_annotations():
                     annotation_failures += add_annotation(tag="osquery-restart",
                                                           start_time=LogUtils.get_epoch_time_from_log_line(line),
                                                           text="Failed to reconfigure osquery")
-                elif "Process task STOP" in line:
+                elif "Stopping EDR" in line:
                     annotation_failures += add_annotation(tag="osquery-restart",
                                                           start_time=LogUtils.get_epoch_time_from_log_line(line),
-                                                          text="Process task STOP")
+                                                          text="Stopping EDR")
                 elif "Restarting osquery, reason: " in line:
                     annotation_failures += add_annotation(tag="osquery-restart",
                                                           start_time=LogUtils.get_epoch_time_from_log_line(line),

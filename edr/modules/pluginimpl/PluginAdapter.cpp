@@ -338,17 +338,15 @@ namespace Plugin
                 switch (task.m_taskType)
                 {
                     case Task::TaskType::STOP:
-                        LOGDEBUG("Process task STOP");
+                        LOGINFO("Stopping EDR");
                         osqueryDataRetentionCheckState->enabled = false;
                         stopOsqueryAndExtensions();
                         return ret;
                     case Task::TaskType::START_OSQUERY:
-                        LOGDEBUG("Process task START_OSQUERY");
                         LOGINFO("Restarting osquery");
                         setUpOsqueryMonitor();
                         break;
                     case Task::TaskType::QUEUE_OSQUERY_RESTART:
-                        LOGDEBUG("Process task QUEUE_OSQUERY_RESTART");
                         LOGINFO("Restarting osquery, reason: " << task.m_content);
                         m_restartNoDelay = true;
                         m_expectedOsqueryRestart = true;
