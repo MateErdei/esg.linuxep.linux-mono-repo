@@ -3,6 +3,7 @@ Library         Process
 Library         OperatingSystem
 
 Library         ../Libs/FakeManagement.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 
 *** Keywords ***
 
@@ -10,12 +11,13 @@ Component Test Setup
     Run Keyword And Ignore Error   Empty Directory   ${COMPONENT_ROOT_PATH}/log
     Run Keyword And Ignore Error   Empty Directory   ${SOPHOS_INSTALL}/tmp
     Start Fake Management
+    OnFail.register_cleanup  Terminate All Processes  kill=True
+    OnFail.register_cleanup  Stop Fake Management
+    OnFail.register_on_fail  Dump Log   ${EDR_LOG_FILE}
+    OnFail.register_on_fail  Dump Log   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
 
 Component Test TearDown
-    Stop Fake Management
-    Terminate All Processes  kill=True
-    Run Keyword If Test Failed   Dump Log   ${EDR_LOG_FILE}
-    Run Keyword If Test Failed   Dump Log   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
+    OnFail.run_teardown_functions
 
 Setup Base And Component
     Mock Base Installation

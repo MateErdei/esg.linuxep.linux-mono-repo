@@ -286,15 +286,17 @@ Dump EDR Logs
     Dump Log  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
     Dump Log  ${FAKEMANAGEMENT_AGENT_LOG_PATH}
 
+Common Teardown Test Failed
+    Run Keyword And Ignore Error  Log Status Of Sophos Spl
+    Dump EDR Logs
+    Get all sophos processes
+    Display All SSPL Files Installed
+    Display All SSPL Plugins Files Installed
+    Dump Threads   ${EDR_PLUGIN_BIN}
+
 Common Teardown
-    CoreDumps.Check For Coredumps  ${TEST_NAME}
-    CoreDumps.Check Dmesg For Segfaults
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log Status Of Sophos Spl
-    Run Keyword If Test Failed  Dump EDR Logs
-    Run Keyword If Test Failed  Get all sophos processes
-    Run Keyword If Test Failed  Display All SSPL Files Installed
-    Run Keyword If Test Failed  Display All SSPL Plugins Files Installed
-    Run Keyword If Test Failed  Dump Threads   ${EDR_PLUGIN_BIN}
+    register On Fail  Common Teardown Test Failed
+    OnFail.run_teardown_functions
 
 EDR And Base Teardown Without Stopping Or Starting EDR
     Wait Until Keyword Succeeds
@@ -311,7 +313,6 @@ EDR And Base Teardown Without Starting EDR
 
 EDR And Base Teardown
     EDR And Base Teardown Without Starting EDR
-    Run Cleanup Functions
     Start EDR
 
 EDR And Base Teardown No Stop

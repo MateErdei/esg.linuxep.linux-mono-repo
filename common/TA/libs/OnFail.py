@@ -9,11 +9,18 @@ DEFAULT_CLEANUP_ACTIONS = []
 
 class OnFail(object):
     def __init__(self):
+        self.__m_fail_actions = None
+        self.__m_cleanup_actions = None
+        self.__m_late_cleanup_actions = None
+        self.__m_errors = None
+        self.reset()
+        self.__m_builtin = BuiltIn()
+
+    def reset(self):
         self.__m_fail_actions = []
         self.__m_cleanup_actions = DEFAULT_CLEANUP_ACTIONS[:]
         self.__m_late_cleanup_actions = []
         self.__m_errors = []
-        self.__m_builtin = BuiltIn()
 
     @staticmethod
     def register_default_cleanup_action(keyword, *args):
@@ -96,3 +103,5 @@ class OnFail(object):
         self.__run_actions(self.__m_late_cleanup_actions, False)
         if self.__m_errors:
             raise robot.errors.ExecutionFailures(self.__m_errors)
+        self.reset()
+

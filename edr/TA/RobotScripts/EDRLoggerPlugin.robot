@@ -8,7 +8,6 @@ Library         ${COMMON_TEST_LIBS}/LogUtils.py
 Library         ../Libs/XDRLibs.py
 Library         ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library         ../Libs/FakeManagement.py
-Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 
 Resource        EDRResources.robot
 Resource        ComponentSetup.robot
@@ -871,7 +870,6 @@ Test Teardown
     Run Keyword If Test Failed    Run Keyword And Ignore Error    Clear Datafeed Dir And Wait For Next Result File
     Run Keyword If Test Failed    Run Keyword And Ignore Error    Dump Scheduled Query Table
     Run Keyword If Test Failed    Verify RPM DB
-    Run Keyword If Test Failed    CoreDumps.check_for_coredumps
     EDR And Base Teardown Without Starting EDR
     Uninstall EDR
     clear_datafeed_folder

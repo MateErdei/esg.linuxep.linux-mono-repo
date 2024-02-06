@@ -53,7 +53,13 @@ Global Setup Tasks
     evaluate    sys.path.append("${COMMON_TEST_LIBS}")    modules=sys
     install_system_ca_cert   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
 
+    Import Library   ${COMMON_TEST_LIBS}/OnFail.py
+    Import Library   ${COMMON_TEST_LIBS}/CoreDumps.py
+
     Enable Core Files    Dump EDR Logs
+
+    OnFail.register_default_cleanup_action  CoreDumps.Check For Coredumps
+    OnFail.register_default_cleanup_action  CoreDumps.Check Dmesg For Segfaults
 
 Global Teardown Tasks
     Uninstall All
