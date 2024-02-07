@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -20,6 +20,8 @@ namespace Common::ApplicationConfigurationImpl
 
         void setData(const std::string& key, const std::string& data) override;
         void clearData(const std::string& key) override;
+
+        void reset() override;
 
     private:
         configuration_data_t m_configurationData;

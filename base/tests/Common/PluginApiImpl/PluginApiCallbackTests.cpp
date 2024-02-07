@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "MockedPluginApiCallback.h"
 #include "SingleManagementRequest.h"
@@ -61,9 +61,6 @@ namespace
 
             std::thread registration(handleRegistration, pluginResourceManagement.getSocketContext());
 
-            //auto mockFileSystem = new StrictMock<MockFileSystem>();
-            //m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));
-
             auto mockFilePermissions = new StrictMock<MockFilePermissions>();
             std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
                 std::unique_ptr<MockFilePermissions>(mockFilePermissions);
@@ -80,6 +77,7 @@ namespace
         void TearDown() override
         {
             Common::ApplicationConfiguration::restoreApplicationPathManager();
+            Tests::restoreFilePermissions();
             plugin.reset();
         }
 

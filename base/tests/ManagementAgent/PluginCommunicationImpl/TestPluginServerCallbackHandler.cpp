@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "MockPluginServerCallback.h"
 
@@ -48,6 +48,8 @@ public:
             new ManagementAgent::PluginCommunicationImpl::PluginManager(Common::ZMQWrapperApi::createContext()));
         m_PluginManagerPtr->setServerCallback(m_mockServerCallback, std::move(replier));
     }
+
+    void TearDown() override { Common::ApplicationConfiguration::restoreApplicationPathManager(); }
 
     ~TestPluginServerCallbackHandler() override = default;
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;

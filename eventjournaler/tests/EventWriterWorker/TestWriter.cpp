@@ -1,5 +1,4 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
-
+// Copyright 2021-2024 Sophos Limited. All rights reserved.
 
 #include "MockEventQueuePopper.h"
 #include "MockJournalWriter.h"
@@ -331,8 +330,9 @@ TEST_F(TestWriter, InvalidJournalFilesAreRemoved)
 {
     const std::string filename = "detections.bin";
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    auto mockFileSystem = std::make_unique<::testing::StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, removeFile(filename));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem) };
 
     MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
     std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
@@ -342,7 +342,6 @@ TEST_F(TestWriter, InvalidJournalFilesAreRemoved)
     auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
     EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr), heartbeatPinger);
 
-    EXPECT_CALL(*mockFileSystem, removeFile(filename));
     EXPECT_CALL(*mockJournalWriter, readFileInfo(filename, _)).WillOnce(Return(false));
 
     writer.checkAndPruneTruncatedEvents(filename);

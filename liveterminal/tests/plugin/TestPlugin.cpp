@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
@@ -32,10 +32,13 @@ public:
         pluginCallBack = std::make_shared<Plugin::PluginCallback>(queueTask);
     }
 
-    ~TestBasicPluginApi(){
+    void TearDown() override
+    {
         pluginCallBack->onShutdown();
         m_runner.get();
         pluginAdapter.reset();
+        Tests::restoreFileSystem(); // before applicationConfiguration().reset(), since that can use readlink
+        Common::ApplicationConfiguration::applicationConfiguration().reset();
     }
 
     void initialiseAdapter( Common::PluginApi::IBaseServiceApi * toOwnedBaseApi)
@@ -62,6 +65,28 @@ TEST_F(TestBasicPluginApi, shouldRejectInvalidAction){
     MockApiBaseServices * mock = new MockApiBaseServices();
     initialiseAdapter(mock);
     EXPECT_NO_THROW(pluginCallBack->queueActionWithCorrelation("invalidaction", "corrid"));
+}
+
+TEST_F(TestBasicPluginApi, shouldStartNewSessionOnValidAction)
+{
+    auto filesystemMock = std::make_unique<::testing::StrictMock<MockFileSystem>>();
+    std::string jsonContent = R"({"thumbprint":"1234","url":"dummyurl"})";
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(_, _, _)).Times(0);
+    EXPECT_CALL(*filesystemMock, isFile(::testing::HasSubstr("mcs.config")))
+        .Times(3)
+        .WillRepeatedly(Return(false)); // skip loading endpoint id, device id, tennant id and JWT
+    EXPECT_CALL(*filesystemMock, isFile(::testing::HasSubstr("current_proxy")))
+        .WillOnce(Return(false)); // skip loading proxy info
+    Tests::replaceFileSystem(std::move(filesystemMock));
+
+    MockApiBaseServices* mock = new MockApiBaseServices();
+    initialiseAdapter(mock);
+    std::string content = R"(<action type="sophos.mgt.action.InitiateLiveTerminal">
+        <url>dummyurl</url>
+        <thumbprint>1234</thumbprint>
+        </action>)";
+
+    EXPECT_NO_THROW(pluginCallBack->queueActionWithCorrelation(content, "corrid"));
 }
 
 TEST_F(TestBasicPluginApi, shouldReturnEmptyStatus)

@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+// Copyright 2021-2024 Sophos Limited. All rights reserved.
 
 #include "StateMachineDataBase.h"
 
@@ -25,6 +25,11 @@ using namespace UpdateSchedulerImpl::StateData;
 class StateMachineProcessorTest : public StateMachineDataBase
 {
 public:
+    void TearDown() override
+    {
+        Common::ApplicationConfiguration::applicationConfiguration().reset();
+    }
+
     MockFileSystem& setupFileSystemAndGetMock()
     {
         return setupFileSystemAndGetMock(true);

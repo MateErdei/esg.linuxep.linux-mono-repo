@@ -90,13 +90,11 @@ public:
 
 TEST_F(UploadFolderTests, SuccessCaseWithPassword)
 {
-    // TOUCHES FILE SYSTEM
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    Tests::TempDir tempDir;
-    tempDir.makeDirs("test");
-    std::string folderPath = tempDir.absPath("test/");
-    std::string zipFile = tempDir.absPath("test.zip");
+    std::string tempDir = "/tmp";
+    std::string folderPath = "/tmp/test/";
+    std::string zipFile = "/tmp/test.zip";
 
     ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester,m_mockSignalHandler, m_mockSysCallWrapper);
     nlohmann::json action = getDefaultUploadObject();
@@ -104,7 +102,7 @@ TEST_F(UploadFolderTests, SuccessCaseWithPassword)
     action["targetFolder"] = folderPath;
 
     auto mockAppManager = std::make_unique<NiceMock<MockedApplicationPathManager>>();
-    ON_CALL(*mockAppManager, getResponseActionTmpPath()).WillByDefault(Return(tempDir.absPath("")));
+    ON_CALL(*mockAppManager, getResponseActionTmpPath()).WillByDefault(Return(tempDir));
     replaceApplicationPathManager(std::move(mockAppManager));
 
     auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
@@ -121,7 +119,7 @@ TEST_F(UploadFolderTests, SuccessCaseWithPassword)
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
-    
+
     EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], 200);
 }

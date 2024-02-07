@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "Common/FileSystem/IFileNotFoundException.h"
 #include "Common/FileSystem/IFileTooLargeException.h"
@@ -30,7 +30,12 @@ namespace
     protected:
         TestPluginManagerQueueAction() : MemoryAppenderUsingTests("managementagent"), usingMemoryAppender_{ *this } {}
 
-        ~TestPluginManagerQueueAction() override { Common::ZeroMQWrapper::restorePollerFactory(); }
+        void TearDown() override
+        {
+            Common::ZeroMQWrapper::restorePollerFactory();
+            Tests::restoreFileSystem();
+            Tests::restoreFilePermissions();
+        }
 
         std::unique_ptr<MockedApplicationPathManager> mockedApplicationPathManager_ =
             std::make_unique<MockedApplicationPathManager>();

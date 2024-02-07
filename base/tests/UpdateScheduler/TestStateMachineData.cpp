@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+// Copyright 2021-2024 Sophos Limited. All rights reserved.
 
 #include "StateMachineDataBase.h"
 
@@ -18,6 +18,11 @@ class StateMachineDataTest : public StateMachineDataBase
 {
 public:
     ~StateMachineDataTest() { }
+
+    void TearDown() override
+    {
+        Common::ApplicationConfiguration::applicationConfiguration().reset();
+    }
 
     MockFileSystem& setupFileSystemAndGetMock()
     {

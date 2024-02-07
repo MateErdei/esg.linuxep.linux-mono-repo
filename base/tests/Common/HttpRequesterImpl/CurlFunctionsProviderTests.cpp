@@ -1,4 +1,4 @@
-// Copyright 2022-2023 Sophos Limited. All rights reserved.
+// Copyright 2022-2024 Sophos Limited. All rights reserved.
 
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "Common/FileSystem/IFileSystem.h"
@@ -11,7 +11,10 @@
 #include <gtest/gtest.h>
 
 class CurlFunctionsProviderTests : public LogInitializedTests
-{};
+{
+protected:
+    void TearDown() override { Tests::restoreFileSystem(); }
+};
 
 // curlWriteFunc Tests
 

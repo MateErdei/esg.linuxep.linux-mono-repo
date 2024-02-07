@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "Common/ProcessImpl/ProcessImpl.h"
 #include "ResponseActions/ResponseActionsImpl/InvalidCommandFormat.h"
@@ -33,6 +33,11 @@ class RunCommandTests : public MemoryAppenderUsingTests
 
             m_runCommandAction =
                 std::make_unique<RunCommandAction>(m_mockSignalHandler, m_mockSysCallWrapper);
+        }
+
+        void TearDown() override
+        {
+            Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
         }
 
         void setupMockSysCalls()

@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #ifndef ARTISANBUILD
 #    include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -213,6 +213,7 @@ namespace
     void TestWatchdogAndWdctl::TearDownTestCase()
     {
         tempDir.reset(nullptr);
+        Common::ApplicationConfiguration::applicationConfiguration().reset();
     }
 
 }
@@ -238,7 +239,7 @@ TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog)
     WatchdogWdctlRunner watchdogRunner;
     {
         std::unique_lock<std::mutex> lock{ensureNotInParallel};
-        Tests::replaceFilePermissions(std::move(mockFilePermissions));
+        Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{ std::move(mockFilePermissions) };
         testing::internal::CaptureStderr();
         watchdogRunner.start();
         waitPluginStarted();
@@ -282,7 +283,7 @@ TEST_F(TestWatchdogAndWdctl, WdctlIsRunningDetectCanDetectStatusOfPlugins)
     WatchdogWdctlRunner watchdogRunner;
     {
         std::unique_lock<std::mutex> lock{ensureNotInParallel};
-        Tests::replaceFilePermissions(std::move(mockFilePermissions));
+        Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{ std::move(mockFilePermissions) };
         watchdogRunner.start();
         waitPluginStarted();
 

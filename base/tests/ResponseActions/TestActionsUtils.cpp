@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "ResponseActions/ResponseActionsImpl/ActionRequiredFields.h"
@@ -20,6 +20,12 @@ public:
     ActionsUtilsTests()
         : MemoryAppenderUsingTests("ResponseActionsImpl")
     {}
+
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
+        Tests::restoreFilePermissions();
+    }
 };
 
 class ResponseActionFieldsParameterized

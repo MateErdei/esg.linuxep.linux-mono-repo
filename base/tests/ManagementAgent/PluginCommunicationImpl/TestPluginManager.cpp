@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include "Common/FileSystemImpl/FileSystemImpl.h"
@@ -105,6 +105,12 @@ namespace
             auto pointer = filesystemMock;
             m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
             return *pointer;
+        }
+
+        void TearDown() override
+        {
+            Common::ApplicationConfiguration::restoreApplicationPathManager();
+            Tests::restoreFilePermissions();
         }
 
         ~TestPluginManager() override = default;

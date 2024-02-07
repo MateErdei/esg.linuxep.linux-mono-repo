@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 #include "MockedPluginApiCallback.h"
 #include "SingleResponseServer.h"
 
@@ -66,6 +66,7 @@ namespace
         void TearDown() override
         {
             Common::ApplicationConfiguration::restoreApplicationPathManager();
+            Tests::restoreFilePermissions();
             plugin.reset();
             
             if (server.joinable())
@@ -190,6 +191,8 @@ namespace
         ASSERT_THROW(
             resourceManagement.createPluginAPI("plugin", mockPluginCallback),
             Common::PluginApi::ApiException);
+
+        Common::ApplicationConfiguration::restoreApplicationPathManager();
     }
 
     TEST_F(PluginApiTests, pluginApiCanSendThreatHealthMessageValid)

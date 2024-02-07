@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
@@ -18,6 +18,7 @@ public:
     void TearDown() override
     {
         Tests::restoreFileSystem();
+        Common::ApplicationConfiguration::applicationConfiguration().reset();
     }
 
     MockFileSystem& setupFileSystemAndGetMock()

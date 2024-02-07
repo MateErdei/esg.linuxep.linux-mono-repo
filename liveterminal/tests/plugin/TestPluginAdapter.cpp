@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2023-2024 Sophos Limited. All rights reserved.
 
 #include "Common/FileSystem/IFileSystem.h"
 
@@ -56,7 +56,14 @@ Plugin::Task defaultResponseTask()
     return task;
 }
 
-class TestPluginAdapter : public LogOffInitializedTests{}; 
+class TestPluginAdapter : public LogOffInitializedTests
+{
+protected:
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
+    }
+};
 
 TEST_F(TestPluginAdapter, readXmlReturnsEmptyUrlAndThumbprintWhenNotPresent)
 {

@@ -55,8 +55,7 @@ namespace Common::ApplicationConfigurationImpl
 
     ApplicationConfiguration::ApplicationConfiguration()
     {
-        m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL] = workOutInstallDirectory();
-
+        ApplicationConfiguration::reset();
     }
 
     void ApplicationConfiguration::setData(const std::string& key, const std::string& data)
@@ -67,6 +66,12 @@ namespace Common::ApplicationConfigurationImpl
     void ApplicationConfiguration::clearData(const std::string& key)
     {
         m_configurationData.erase(key);
+    }
+
+    void ApplicationConfiguration::reset()
+    {
+        m_configurationData.clear();
+        m_configurationData[Common::ApplicationConfiguration::SOPHOS_INSTALL] = workOutInstallDirectory();
     }
 } // namespace Common::ApplicationConfigurationImpl
 

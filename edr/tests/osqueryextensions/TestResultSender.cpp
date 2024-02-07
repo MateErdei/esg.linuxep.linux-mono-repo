@@ -1,4 +1,4 @@
-// Copyright 2020-2023 Sophos Limited. All rights reserved.
+// Copyright 2020-2024 Sophos Limited. All rights reserved.
 
 #include "livequery/ResponseData.h"
 #include "osqueryextensions/ResultsSender.h"
@@ -128,8 +128,23 @@ const std::string EXAMPLE_QUERY_PACK_WITH_DUPLICATES =  R"({
     }
 })";
 
-class TestResultSender : public LogOffInitializedTests{};
-class TestResultSenderWithLogger : public LogInitializedTests{};
+class TestResultSender : public LogOffInitializedTests
+{
+protected:
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
+    }
+};
+
+class TestResultSenderWithLogger : public LogInitializedTests
+{
+protected:
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
+    }
+};
 
 class ResultSenderForUnitTests : public ResultsSender
 {
@@ -196,6 +211,11 @@ protected:
                     [this]()mutable{m_callbackCalled = true;}));
 
         getTelemetry().serialiseAndReset();
+    }
+
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
     }
 
     Json::Value parseJson(const std::string& json)

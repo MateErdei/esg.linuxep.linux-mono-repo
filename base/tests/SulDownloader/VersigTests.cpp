@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
@@ -31,6 +31,12 @@ namespace
             fileSystemMock = new MockFileSystem();
             m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));
         }
+
+        void TearDown() override
+        {
+            Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
+        }
+
         Common::Policy::UpdateSettings m_configurationData;
         std::string rootca;
         std::string productDir;

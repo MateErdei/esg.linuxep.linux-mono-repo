@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 /**
  * Component tests to SULDownloader mocking out Sdds3Repository
@@ -3081,7 +3081,14 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderSupplementOnlyButBaseVersionIniDo
 }
 
 // Suldownloader WriteInstalledFeatures()
-class TestSuldownloaderWriteInstalledFeaturesFunction: public LogOffInitializedTests{};
+class TestSuldownloaderWriteInstalledFeaturesFunction: public LogOffInitializedTests
+{
+protected:
+    void TearDown() override
+    {
+        Tests::restoreFilePermissions();
+    }
+};
 
 TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, featuresAreWrittenToJsonFile)
 {

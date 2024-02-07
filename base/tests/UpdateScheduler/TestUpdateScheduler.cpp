@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+// Copyright 2021-2024 Sophos Limited. All rights reserved.
 
 #define TEST_PUBLIC public
 
@@ -157,7 +157,7 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, doesNotReprocessIfRecievesIden
     EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(false));
     EXPECT_CALL(*filesystemMock, isFile(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(_)).WillRepeatedly(Return(policySnippet));
-    Tests::replaceFileSystem(std::move(filesystemMock));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::move(filesystemMock) };
 
     auto taskQueue = std::make_shared<UpdateScheduler::SchedulerTaskQueue>();
     auto mockBaseService = std::make_unique<::testing::StrictMock<MockApiBaseServices>>();

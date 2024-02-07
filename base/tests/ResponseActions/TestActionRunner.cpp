@@ -24,7 +24,13 @@ class TestActionRunner : public MemoryAppenderUsingTests
 {
 public:
     TestActionRunner() : MemoryAppenderUsingTests("responseactions") {}
-    void SetUp() {}
+
+    void TearDown() override
+    {
+        Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
+        Tests::restoreFilePermissions();
+        Common::ApplicationConfiguration::restoreApplicationPathManager();
+    }
 };
 
 TEST_F(TestActionRunner, Success)
@@ -216,6 +222,19 @@ TEST_F(TestActionRunner, runActionHandlesMissingBinaryWithInternalErrorResultCod
     EXPECT_CALL(*mockIFilePermissions, chmod(_, _)).Times(1);
     Tests::replaceFilePermissions(std::move(mockIFilePermissions));
 
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        []()
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(_, _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_, _)).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
+            EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
+            EXPECT_CALL(*mockProcess, kill()).WillOnce(Return(true));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("some output"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(9));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        });
+
     // result 3 is INTERNAL_ERROR
     std::string expectedContent = R"({"result":3,"type":"sophos.mgt.response.RunCommands"})";
     auto* filesystemMock = new MockFileSystem();
@@ -288,6 +307,13 @@ class TestActionRunnerParameterized : public ::testing::TestWithParam<std::pair<
 {
 protected:
     void SetUp() override { m_loggingSetup = Common::Logging::LOGOFFFORTEST(); }
+
+    void TearDown() override
+    {
+        Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
+        Tests::restoreFilePermissions();
+    }
+
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
@@ -436,6 +462,13 @@ protected:
         std::ignore = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
         m_loggingSetup = Common::Logging::LOGOFFFORTEST();
     }
+
+    void TearDown() override
+    {
+        Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
+        Tests::restoreFilePermissions();
+    }
+
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 

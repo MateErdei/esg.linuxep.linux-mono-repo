@@ -16,6 +16,7 @@ namespace Common::ApplicationConfiguration
         [[nodiscard]] virtual std::string getData(const std::string& key) const = 0;
         virtual void setData(const std::string& key, const std::string& data) = 0;
         virtual void clearData(const std::string& key) = 0;
+        virtual void reset() = 0;
     };
 
     [[nodiscard]] IApplicationConfiguration& applicationConfiguration();
