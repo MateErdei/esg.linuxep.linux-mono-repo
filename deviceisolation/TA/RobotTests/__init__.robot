@@ -26,7 +26,16 @@ Global Setup Tasks
     Set Global Variable  ${COMPONENT_ROOT_PATH}     ${SOPHOS_INSTALL}/plugins/${COMPONENT_NAME}
 
     Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
+
+    Import Library   ${COMMON_TEST_LIBS}/OSUtils.py
     install_system_ca_cert   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+
+    Import Library   ${COMMON_TEST_LIBS}/CoreDumps.py
+    Enable Core Files    Device Isolation On Fail Dump Logs
+
+    Import Library   ${COMMON_TEST_LIBS}/OnFail.py
+    register_default_cleanup_action  CoreDumps.Check For Coredumps
+    register_default_cleanup_action  CoreDumps.Check Dmesg For Segfaults
 
 Global Teardown Tasks
     Remove Directory  ${SOPHOS_INSTALL}  recursive=True

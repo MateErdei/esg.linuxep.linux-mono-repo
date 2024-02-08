@@ -107,15 +107,21 @@ Device Isolation Suite Setup
 Device Isolation Suite Teardown
     Uninstall Base
 
+Device Isolation On Fail Dump Logs
+    dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    dump log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
+    dump log  ${DEVICE_ISOLATION_LOG_PATH}
+
 Device Isolation Test Setup
-    Register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
-    Register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
-    Register on fail  dump log  ${DEVICE_ISOLATION_LOG_PATH}
+    Register on fail  Device Isolation On Fail Dump Logs
+    Register Cleanup  Device Isolation Test Cleanup
+
+Device Isolation Test Cleanup
+	Cleanup Temporary Folders
+	Remove File    ${SOPHOS_INSTALL}/base/mcs/policy/NTP-24_policy.xml
 
 Device Isolation Test Teardown
 	Run teardown functions
-	Cleanup Temporary Folders
-	Remove File    ${SOPHOS_INSTALL}/base/mcs/policy/NTP-24_policy.xml
 
 Send Enable Isolation Action
     [Arguments]  ${uuid}
