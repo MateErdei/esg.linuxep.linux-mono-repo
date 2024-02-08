@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 #pragma once
 
 #include <log4cplus/logger.h>
@@ -11,6 +7,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <iostream>
 namespace log4cplus
 {
+    class Logger;
     const LogLevel SUPPORT_LOG_LEVEL = DEBUG_LOG_LEVEL + 1;
 }
 

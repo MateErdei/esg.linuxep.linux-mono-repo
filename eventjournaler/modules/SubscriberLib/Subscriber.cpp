@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+// Copyright 2021-2024 Sophos Limited. All rights reserved.
 
 #include "Subscriber.h"
 
@@ -84,7 +84,7 @@ namespace SubscriberLib
 
         m_socket->subscribeTo("threatEvents");
 
-        auto fs = Common::FileSystem::fileSystem();
+        auto* fs = Common::FileSystem::fileSystem();
 
         auto poller = Common::ZeroMQWrapper::createPoller();
         auto stopPipeHandler = poller->addEntry(stopPipe_.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
@@ -137,7 +137,7 @@ namespace SubscriberLib
                 break;
             }
         }
-        fs->removeFile(m_socketPath);
+        fs->removeFile(m_socketPath, true);
     }
 
     void Subscriber::start()
@@ -159,20 +159,17 @@ namespace SubscriberLib
         std::string socketDir = Common::FileSystem::dirName(m_socketPath);
         if (fs->isDirectory(socketDir))
         {
-            if (fs->exists(m_socketPath))
+            try
             {
-                try
-                {
-                    fs->removeFile(m_socketPath);
-                }
-                catch(const std::exception& exception)
-                {
-                    std::string msg =
-                            "Subscriber start failed to remove existing socket: " + m_socketPath +
-                            " Error: " + exception.what();
-                    LOGERROR(msg);
-                    throw std::runtime_error(msg);
-                }
+                fs->removeFile(m_socketPath, true);
+            }
+            catch(const std::exception& exception)
+            {
+                std::string msg =
+                        "Subscriber start failed to remove existing socket: " + m_socketPath +
+                        " Error: " + exception.what();
+                LOGERROR(msg);
+                std::throw_with_nested(Common::Exceptions::IException(LOCATION, msg));
             }
         }
         else
@@ -183,7 +180,7 @@ namespace SubscriberLib
             // If the socket dir does not exist then the whole plugin will exit. If that dir is missing then the
             // installation is unusable and this plugin shouldn't try and fix it.
             // So throw and let WD start us up again if needed.
-            throw std::runtime_error(msg);
+            std::throw_with_nested(Common::Exceptions::IException(LOCATION, msg));
         }
         m_runnerThread = std::make_unique<std::thread>(std::thread([this] { subscribeToEvents(); }));
         LOGINFO("Subscriber started");
@@ -212,7 +209,7 @@ namespace SubscriberLib
                 LOGERROR("Subscriber socket was not removed after Subscriber finished, deleting: " << m_socketPath);
                 try
                 {
-                    fs->removeFile(m_socketPath);
+                    fs->removeFile(m_socketPath, true);
                 }
                 catch (const std::exception& exception)
                 {

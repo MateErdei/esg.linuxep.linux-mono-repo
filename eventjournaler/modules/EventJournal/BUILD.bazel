@@ -1,4 +1,4 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
@@ -10,6 +10,7 @@ soph_cc_library(
     hdrs = ["IEventJournalWriter.h"],
     implementation_deps = [
         "//base/modules/Common/ApplicationConfiguration",
+        "//base/modules/Common/FileSystem",
         "//base/modules/Common/Logging",
         "//base/modules/Common/UtilityImpl:RegexUtilities",
         "//base/modules/Common/UtilityImpl:StringUtils",

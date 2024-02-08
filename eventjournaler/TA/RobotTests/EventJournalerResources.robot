@@ -3,6 +3,8 @@ Library         Process
 Library         OperatingSystem
 Library         String
 Library         ../Libs/EventjournalerUtils.py
+Library         ${COMMON_TEST_LIBS}/CoreDumps.py
+Library         ${COMMON_TEST_LIBS}/OnFail.py
 
 Resource  GeneralResources.robot
 
@@ -82,6 +84,7 @@ List File In Test Dir
     Log    ${filenames}
 
 Event Journaler Teardown
+    OnFail.run_teardown_functions
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Run Keyword If Test Failed  Log File  ${EVENT_JOURNALER_LOG_PATH}

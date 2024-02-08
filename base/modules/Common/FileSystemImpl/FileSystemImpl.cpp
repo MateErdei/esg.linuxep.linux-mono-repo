@@ -1,4 +1,4 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2024 Sophos Limited. All rights reserved.
 
 #include "FileSystemImpl.h"
 
@@ -774,6 +774,7 @@ namespace Common::FileSystem
 
             std::string error_cause = StrError(error);
             throw Common::FileSystem::IFileSystemException(
+                    LOCATION,
                 "Failed to delete file: " + path + ". Cause: " + error_cause);
         }
     }

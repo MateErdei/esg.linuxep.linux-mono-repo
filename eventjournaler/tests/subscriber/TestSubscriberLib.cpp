@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+// Copyright 2021-2024 Sophos Limited. All rights reserved.
 
 // Class under test
 #define TEST_PUBLIC public
@@ -118,7 +118,7 @@ TEST_F(TestSubscriber, SubscriberStartAndStop)
     EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath)))
         .WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(fakeSocketPath)).WillRepeatedly(Return());
+    EXPECT_CALL(*mockFileSystem, removeFile(fakeSocketPath, true)).WillRepeatedly(Return());
     Tests::replaceFileSystem(std::move(mockFileSystem));
 
     auto mockIFilePermissionsPtr = std::make_unique<StrictMock<MockFilePermissions>>();
@@ -158,8 +158,8 @@ TEST_F(TestSubscriberWithLog, SubscriberHandlesfailedChmod)
     EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath)))
         .WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath))
-        .WillOnce(Return(false)) // initial check in start() called by test
         .WillOnce(Return(false)); // stop() call in destructor.
+    EXPECT_CALL(*mockFileSystem, removeFile(fakeSocketPath, true)).WillRepeatedly(Return());
     Tests::replaceFileSystem(std::move(mockFileSystem));
 
     auto mockFilePermissions = std::make_unique<StrictMock<MockFilePermissions>>();
@@ -274,7 +274,7 @@ TEST_F(TestSubscriber, SubscriberStartThrowsIfSocketDirDoesNotExist)
     EXPECT_THAT(errorMsg, ::testing::HasSubstr("The events pub/sub socket directory does not exist:"));
 }
 
-TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSocket)
+TEST_F(TestSubscriberWithLog, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSocket)
 {
     std::string fakeSocketPath = "/fake/dir/for/socketPath";
 
@@ -317,7 +317,6 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
     auto mockFileSystem = std::make_unique<NiceMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath))).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath))
-        .WillOnce(Return(false)) // initial check in start(), called by test
         .WillOnce(Return(true)) // The check before read, the first one we allow a read
         .WillOnce(Return(true)) // Second read read
         .WillOnce(Return(true)) // Third read

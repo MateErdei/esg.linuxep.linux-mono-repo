@@ -31,7 +31,16 @@ Global Setup Tasks
 
     Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
 
+    Import Library   ${COMMON_TEST_LIBS}/OnFail.py
+    Import Library   ${COMMON_TEST_LIBS}/CoreDumps.py
+
+    CoreDumps.Enable Core Files  on fail dump logs
+
     install_system_ca_cert   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+
+    OnFail.register_default_cleanup_action  CoreDumps.Check For Coredumps
+    OnFail.register_default_cleanup_action  CoreDumps.Check Dmesg For Segfaults
+
     initial cleanup
 
 Global Teardown Tasks

@@ -69,7 +69,7 @@ class OnFail(object):
         self.__m_late_cleanup_actions.append((keyword, args))
 
     def __import_if_required(self, keyword):
-        if keyword.startswith("CoreDumps"):
+        if keyword.startswith("CoreDumps."):
             self.__m_builtin.import_library("${COMMON_TEST_LIBS}/CoreDumps.py")
 
     def __run_actions(self, actions, if_failed=True):
@@ -77,11 +77,10 @@ class OnFail(object):
         for (keyword, args) in reversed(actions):
             try:
                 args = args or []
+                self.__import_if_required(keyword)
                 if if_failed:
-                    self.__import_if_required(keyword)
                     self.__m_builtin.run_keyword_if_test_failed(keyword, *args)
                 else:
-                    self.__import_if_required(keyword)
                     self.__m_builtin.run_keyword(keyword, *args)
             except robot.errors.ExecutionPassed as err:
                 err.set_earlier_failures(self.__m_errors)
