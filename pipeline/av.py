@@ -42,6 +42,7 @@ def is_debian_based(template):
     return distro in (
         "debian10",
         "debian11",
+        "debian12",
         "ubuntu1804",
         "ubuntu2004",
         "ubuntu2204",
@@ -126,7 +127,7 @@ def run_av_integration_tests(machine: tap.Machine, robot_args_json: str):
 
     os_packages += ["zip", "gdb", "autofs", "util-linux", "lsof"]
     if is_debian_based(machine.template):
-        os_packages += ["nfs-kernel-server", "bfs", "libguestfs-reiserfs", "netcat"]
+        os_packages += ["nfs-kernel-server", "bfs", "libguestfs-reiserfs", "netcat-openbsd"]
     elif is_redhat_based(machine.template):
         os_packages += ["nfs-utils", "nc", "bzip2"]
     elif is_suse_based(machine.template):

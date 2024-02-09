@@ -126,6 +126,7 @@ def get_test_machines(build: str, parameters: DotDict):
         'centos9stream': 'centos9stream_x64_aws_server_en_us',
         'debian10': 'debian10_x64_aws_server_en_us',
         'debian11': 'debian11_x64_aws_server_en_us',
+        'debian12': 'debian12_x64_aws_server_en_us',
         'oracle7': 'oracle79_x64_aws_server_en_us',
         'oracle8': 'oracle87_x64_aws_server_en_us',
         'rhel7': 'rhel79_x64_aws_server_en_us',
@@ -148,6 +149,7 @@ def get_test_machines(build: str, parameters: DotDict):
         'amazonlinux2023': 'amzlinux2023_arm64_server_en_us',
         'centos9stream': 'centos9stream_arm64_server_en_us',
         'debian11': 'debian11_arm64_server_en_us',
+        'debian12': 'debian12_arm64_server_en_us',
         'rhel9': 'rhel91_arm64_server_en_us',
         'sles15': 'sles15_arm64_sp5_server_en_us',
         'ubuntu1804': 'ubuntu1804_arm64_server_en_us',
@@ -232,6 +234,14 @@ def get_test_machines(build: str, parameters: DotDict):
         test_environments["x64"][platform] = available_x64_environments.get(platform, [])
         test_environments["arm64"][platform] = available_arm64_environments.get(platform, [])
     elif parameters.run_debian_11 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
+
+    platform = 'debian12'
+    if parameters.run_debian_12 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform)
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform)
+    elif parameters.run_debian_12 == "dont_run":
         test_environments["x64"].pop(platform, None)
         test_environments["arm64"].pop(platform, None)
 
@@ -368,27 +378,16 @@ def get_os_packages(machine: tap.Machine):
         "unzip",
         "zip",
     ]
+    # Return common packages by default or any special cases for specific distros.
     # X64
-    if machine.template == "amzlinux2_x64_server_en_us":
-        return common
-    elif machine.template == "amzlinux2023_x64_server_en_us":
+    if machine.template == "amzlinux2023_x64_server_en_us":
         return common + ["iptables-services"]
-    elif machine.template == "centos7_x64_aws_server_en_us":
-        return common
     elif machine.template == "centos8stream_x64_aws_server_en_us":
         return common + ["iptables-services"]
     elif machine.template == "centos9stream_x64_aws_server_en_us":
         return common + ["iptables-services"]
-    elif machine.template == "debian10_x64_aws_server_en_us":
-        return common
-    elif machine.template == "debian11_x64_aws_server_en_us":
-        return common
     elif machine.template == "oracle79_x64_aws_server_en_us":
         return common + ["iptables-services"]
-    elif machine.template == "oracle87_x64_aws_server_en_us":
-        return common
-    elif machine.template == "rhel79_x64_aws_server_en_us":
-        return common
     elif machine.template == "rhel87_x64_aws_server_en_us":
         return common + ["iptables-services"]
     elif machine.template == "rhel91_x64_aws_server_en_us":
@@ -397,39 +396,21 @@ def get_os_packages(machine: tap.Machine):
         return common + ["libcap-progs", "curl"]
     elif machine.template == "sles15_x64_sp5_aws_server_en_us":
         return common + ["libcap-progs"]
-    elif machine.template == "ubuntu1804_x64_aws_server_en_us":
-        return common
-    elif machine.template == "ubuntu2004_x64_aws_server_en_us":
-        return common
-    elif machine.template == "ubuntu2204_x64_aws_server_en_us":
-        return common
     # ARM64
-    elif machine.template == "amzlinux2_arm64_server_en_us":
-        return common
     elif machine.template == "amzlinux2023_arm64_server_en_us":
         return common + ["iptables-services"]
     elif machine.template == "centos8stream_arm64_server_en_us":
         return common + ["iptables-services"]
     elif machine.template == "centos9stream_arm64_server_en_us":
         return common + ["iptables-services"]
-    elif machine.template == "debian10_arm64_server_en_us":
-        return common
-    elif machine.template == "debian11_arm64_server_en_us":
-        return common
     elif machine.template == "rhel87_arm64_server_en_us":
         return common + ["iptables-services"]
     elif machine.template == "rhel91_arm64_server_en_us":
         return common + ["iptables-services"]
     elif machine.template == "sles15_arm64_sp5_server_en_us":
         return common + ["libcap-progs"]
-    elif machine.template == "ubuntu1804_arm64_server_en_us":
-        return common
-    elif machine.template == "ubuntu2004_arm64_server_en_us":
-        return common
-    elif machine.template == "ubuntu2204_arm64_server_en_us":
-        return common
     else:
-        raise Exception(f"Unknown template {machine.template}")
+        return common
 
 
 def is_coverage_enabled(parameters):
