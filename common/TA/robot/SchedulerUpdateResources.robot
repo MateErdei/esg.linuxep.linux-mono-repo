@@ -147,6 +147,16 @@ Check Event Report Success
     ${fileContent}  Get File  ${eventPath}
     Should Contain  ${fileContent}  <number>0</number>  msg="Event does not correspond to a success"
 
+Check Event Report Single Missing Package
+    [Arguments]   ${eventPath}
+    ${fileContent}  Get File  ${eventPath}
+    Should Contain  ${fileContent}  <number>111</number>  msg="Event does not correspond to a single missing package (111 error number)"
+
+Check Event Report Multiple Missing Packages
+    [Arguments]   ${eventPath}
+    ${fileContent}  Get File  ${eventPath}
+    Should Contain  ${fileContent}  <number>113</number>  msg="Event does not correspond to multiple missing packages (113 error number)"
+
 Check Event Report Install Failed
     [Arguments]   ${eventPath}
     ${fileContent}  Get File  ${eventPath}

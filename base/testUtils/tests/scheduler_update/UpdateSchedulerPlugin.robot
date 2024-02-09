@@ -23,10 +23,6 @@ Resource    ${COMMON_TEST_ROBOT}/TelemetryResources.robot
 
 Force Tags  UPDATE_SCHEDULER  TAP_PARALLEL6
 
-*** Variables ***
-${TELEMETRY_SUCCESS}    0
-${TELEMETRY_JSON_FILE}              ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json
-
 *** Test Cases ***
 UpdateScheduler SulDownloader Report Sync With Warehouse Success
     [Tags]  SMOKE
@@ -784,6 +780,32 @@ Update Scheduler Waits Until Suldownloader Has Finished On Start
         ...    Took lock /opt/sophos-spl/var/lock-sophosspl/suldownloader.pid, assuming suldownloader not running
         ...    No instance of SulDownloader running
         ...    Running with update period to 60 minutes
+
+
+UpdateScheduler Report Single Missing Package
+    Setup Plugin Package Missing
+    Simulate Update Now
+    ${eventPath} =  Check Status and Events Are Created
+    Check Event Report Single Missing Package   ${eventPath}
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${TELEMETRY_SUCCESS}
+    ${telemetryFileContents} =  Get File  ${TELEMETRY_JSON_FILE}
+    Check Update Scheduler Telemetry JSON Is Correct  ${telemetryFileContents}  1  False  install_state=1    download_state=1
+    Cleanup Telemetry Server
+
+
+UpdateScheduler Report Multiple Missing Packages
+    Setup Plugin Package Missing    errorDescription="a;b;c"
+    Simulate Update Now
+    ${eventPath} =  Check Status and Events Are Created
+    Check Event Report Multiple Missing Packages   ${eventPath}
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${TELEMETRY_SUCCESS}
+    ${telemetryFileContents} =  Get File  ${TELEMETRY_JSON_FILE}
+    Check Update Scheduler Telemetry JSON Is Correct  ${telemetryFileContents}  1  False  install_state=1    download_state=1
+    Cleanup Telemetry Server
 
 
 *** Keywords ***

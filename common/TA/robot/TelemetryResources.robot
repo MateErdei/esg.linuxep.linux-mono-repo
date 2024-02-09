@@ -46,6 +46,9 @@ ${USERNAME}    sophos-spl-user
 ${MACHINE_ID_FILE}  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${tmpPolicy}       /tmp/tmpALC.xml
 
+${TELEMETRY_SUCCESS}    0
+${TELEMETRY_JSON_FILE}              ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json
+
 *** Keywords ***
 Create Fake Telemetry Executable
     ${script} =     Catenate    SEPARATOR=\n

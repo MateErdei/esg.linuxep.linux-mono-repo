@@ -111,6 +111,14 @@ class FakeSulDownloader(object):
         report['status'] = 'INSTALLFAILED'
         self.__setup_simulate_report(report)
 
+    def setup_plugin_package_missing(self, errorDescription="", startTime=2, syncTime=1):
+        report = self.__base_and_plugin_report(productStatus='UPTODATE', startTime=startTime, syncTime=syncTime)
+        report['products'][1]['productStatus'] = 'PACKAGESOURCEMISSING'
+        report['products'][1]['errorDescription'] = 'Failed to install'
+        report['status'] = 'PACKAGESOURCEMISSING'
+        report['errorDescription'] = errorDescription
+        self.__setup_simulate_report(report)
+
     def __write_installed_features_file(self, features: list):
         logger.info(f"Writing installed features file list with: {features}")
         installed_features_filepath = os.path.join(INSTALLPATH, "base/update/var/updatescheduler/installed_features.json")
