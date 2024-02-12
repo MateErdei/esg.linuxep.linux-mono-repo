@@ -87,7 +87,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check Current Shipping Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
-    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    ${RTD_STARTUP_TIMEOUT}
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
@@ -156,7 +156,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check VUT Installed Correctly     ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
-    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    ${RTD_STARTUP_TIMEOUT}
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
@@ -254,7 +254,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Check VUT Installed Correctly     ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
-    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    ${RTD_STARTUP_TIMEOUT}
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    get_contents_of_safestore_database
@@ -310,7 +310,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Check Current Shipping Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
-    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    ${RTD_STARTUP_TIMEOUT}
     Wait Until Keyword Succeeds
     ...    120 secs
     ...    10 secs
@@ -397,7 +397,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     Check Current Shipping Installed Correctly    kernel_verion_too_old_for_rtd=${KERNEL_VERSION_TOO_OLD_FOR_RTD}  before_2024_1_group_changes=${True}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
-    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    ${RTD_STARTUP_TIMEOUT}
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
 
     # TODO: This will fail once current shipping no longer has these. Then this check and the one below can be removed.
@@ -435,6 +435,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     mark_expected_error_in_log  ${AV_DIR}/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+    mark_expected_error_in_log  ${AV_DIR}/log/sophos_threat_detector/sophos_threat_detector.info.log  ThreatScanner <> Failed to read customerID - using default value
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry
     mark_expected_error_in_log  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry
     # This is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
@@ -460,7 +461,7 @@ We Can Upgrade From Current Shipping to VUT Without Unexpected Errors
     Check VUT Installed Correctly        ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
-    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    ${RTD_STARTUP_TIMEOUT}
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
     Wait Until Keyword Succeeds
@@ -524,7 +525,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     Check VUT Installed Correctly    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
-    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    ${RTD_STARTUP_TIMEOUT}
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
     # TODO: To be removed once current shipping does not have these certs
@@ -588,7 +589,7 @@ We Can Downgrade From VUT to Current Shipping Without Unexpected Errors
     Check Current Shipping Installed Correctly    kernel_verion_too_old_for_rtd=${KERNEL_VERSION_TOO_OLD_FOR_RTD}  before_2024_1_group_changes=${True}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
-    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    ${RTD_STARTUP_TIMEOUT}
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
     Check For downgraded logs
 

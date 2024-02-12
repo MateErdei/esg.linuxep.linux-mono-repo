@@ -40,7 +40,7 @@ Verify That There Are No Existing Configs to Openssl
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    ${150}
     Run Keyword Unless
     ...  ${KERNEL_VERSION_TOO_OLD_FOR_RTD}
-    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    20
+    ...  wait_for_log_contains_from_mark    ${rtd_mark}    Analytics started processing telemetry    ${RTD_STARTUP_TIMEOUT}
 
     Run Process   systemctl stop sophos-spl   shell=yes
 

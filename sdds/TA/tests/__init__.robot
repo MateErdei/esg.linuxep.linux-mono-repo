@@ -106,6 +106,7 @@ Global Setup Tasks
     Set Global Variable  ${EVENT_JOURNALER_TOOLS}  ${placeholder}
 
     Set Global Variable    ${SAFESTORE_TOOL_PATH}    ${INPUT_DIRECTORY}/safestore_tools/ssr/ssr
+    Set Global Variable    ${RTD_STARTUP_TIMEOUT}     60
     install_system_ca_cert   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
     Download Av Supplements
 Global Teardown Tasks

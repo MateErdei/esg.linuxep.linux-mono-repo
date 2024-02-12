@@ -32,9 +32,10 @@ Reconfigure All Sophos Users And Groups In Installed Product
     Set Suite Variable    ${GL_handle}    ${handle}
     ${update_scheduler_mark} =    mark_log_size    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
-    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
-    Override LogConf File as Global Level    DEBUG
+    ${all_plugins_logs_marks} =    Mark All Plugin Logs
+    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080   sophos_log_level=DEBUG
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    150
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
 
     Verify Watchdog Actual User Group ID File
     ${ids_before} =    Get User And Group Ids Of Files    ${SOPHOS_INSTALL}
