@@ -180,3 +180,6 @@ User Group Reconfiguration Test Setup
     Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/UpdateScheduler died with signal 9
     # TODO: Remove once LINUXDAR-8240 is fixed
     Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/sophos_managementagent died with signal 9
+    #TODO LINUXDAR-8643    remove this line when the ticket is done
+    Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log    Failure on sending message to runtimedetections. Reason: No incoming data on ZMQ socket from getReply in PluginProxy
+

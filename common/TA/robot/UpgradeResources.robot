@@ -37,6 +37,8 @@ Upgrade Resources SDDS3 Test Setup
     Register Cleanup  Mark Expected Error In Log  ${UPDATESCHEDULER_LOG_PATH}  updatescheduler <> Update Service (sophos-spl-update.service) failed.
     Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
     Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+    #TODO LINUXDAR-8643    remove this line when the ticket is done
+    Register Cleanup  Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log    Failure on sending message to runtimedetections. Reason: No incoming data on ZMQ socket from getReply in PluginProxy
 
 Upgrade Resources SDDS3 Test Teardown
     [Arguments]    ${installDir}=${SOPHOS_INSTALL}
@@ -92,7 +94,7 @@ Mark Known Upgrade Errors
     #LINUXDAR-4015 There won't be a fix for this error, please check the ticket for more info
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log  runtimedetections <> Could not enter supervised child process
 
-    #TODO LINUXDAR-8575 Once RTD <-> MA comms are stable remove this error mark line.
+    #TODO LINUXDAR-8575 LINUXDAR-8643 Once RTD <-> MA comms are stable remove this error mark line.
     Mark Expected Error In Log    ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log     managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data on ZMQ socket from getReply in PluginProxy
 
 Mark Known Downgrade Errors

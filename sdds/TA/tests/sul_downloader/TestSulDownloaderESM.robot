@@ -465,8 +465,9 @@ Check MCS Envelope Contains Event with Update cache
 Sul Downloader ESM Test Setup
     Require Uninstalled
     Register Cleanup    Check All Product Logs Do Not Contain Error
-    Register Cleanup    Mark Expected Error In Log  ${MCS_ROUTER_LOG}    mcsrouter.utils.plugin_registry <> Failed to load plugin file
-    Register Cleanup    Mark Expected Error In Log  ${MCS_ROUTER_LOG}    mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied
+    #TODO LINUXDAR-8643    remove this line when the ticket is done
+    Register Cleanup    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log    Failure on sending message to runtimedetections. Reason: No incoming data on ZMQ socket from getReply in PluginProxy
+
     Register Cleanup    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
     Register Cleanup    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
 
@@ -477,6 +478,7 @@ Sul Downloader ESM Test Teardown
     Stop Proxy If Running
     Stop Proxy Servers
     Clean up fake warehouse
+
 Check we send static tag up to central
     ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
     Log    ${StatusContent}

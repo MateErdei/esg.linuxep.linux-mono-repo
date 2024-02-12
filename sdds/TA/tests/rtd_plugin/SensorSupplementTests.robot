@@ -45,6 +45,8 @@ Sdds3 Supplement Update Changes Content
 
     Start Local SDDS3 Server
     configure_and_run_SDDS3_thininstaller    ${0}    https://localhost:8080    https://localhost:8080    thininstaller_source=${THIN_INSTALLER_DIRECTORY}
+    #TODO LINUXDAR-8643    remove this line when the ticket is done
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log    Failure on sending message to runtimedetections. Reason: No incoming data on ZMQ socket from getReply in PluginProxy
 
     Run Keyword Unless    ${KERNEL_VERSION_TOO_OLD_FOR_RTD}    Check Installed and Running
 

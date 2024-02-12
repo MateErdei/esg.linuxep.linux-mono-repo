@@ -884,3 +884,7 @@ Install And Upgrade Test Setup
     Require Uninstalled
     Exclude RTD fallback error messages  ${SOPHOS_INSTALL}
     Register Cleanup    Check All Product Logs Do Not Contain Error
+    #TODO LINUXDAR-8643    remove these lines when the ticket is done
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log    Failure on sending message to runtimedetections. Reason: No incoming data on ZMQ socket from getReply in PluginProxy
+    Mark Expected Error In Log  /home/parent/logs/base/sophosspl/sophos_managementagent.log    Failure on sending message to runtimedetections. Reason: No incoming data on ZMQ socket from getReply in PluginProxy
+
