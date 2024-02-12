@@ -20,6 +20,10 @@ ALC_UPDATE_CACHE_TEMPLATE="""<?xml version="1.0"?>
         <cloud_subscriptions>
             <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
         </cloud_subscriptions>
+                <fixed_version>
+            <token/>
+            <name/>
+        </fixed_version>
         <delay_supplements enabled="false"/>
     </AUConfig>
     <Features>
@@ -35,6 +39,15 @@ ALC_UPDATE_CACHE_TEMPLATE="""<?xml version="1.0"?>
         </locations>
     </update_cache>
     <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
+        <server_names>
+        <sdds3>
+            <sus>sustest.sophosupd.com</sus>
+            <content_servers>
+                <server>sdds3test.sophosupd.com</server>
+                <server>sdds3test.sophosupd.net</server>
+            </content_servers>
+        </sdds3>
+    </server_names>
 </AUConfigurations>
 """
 

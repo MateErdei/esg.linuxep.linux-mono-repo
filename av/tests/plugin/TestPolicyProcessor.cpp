@@ -1,4 +1,4 @@
-// Copyright 2020-2023 Sophos Limited. All rights reserved.
+// Copyright 2020-2024 Sophos Limited. All rights reserved.
 
 #include "TestPolicyProcessor.h"
 
@@ -49,6 +49,10 @@ static const std::string ALC_FULL_POLICY
       <subscription Id="LiveQuery" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="BETA"/>
       <subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="BETA"/>
     </cloud_subscriptions>
+        <fixed_version>
+            <token/>
+            <name/>
+        </fixed_version>
     <delay_supplements enabled="true"/>
   </AUConfig>
   <Features>
@@ -68,9 +72,23 @@ static const std::string ALC_FULL_POLICY
     <Feature id="SDU"/>
     <Feature id="WEBCNTRL"/>
   </Features>
+    <Products>
+        <Product id="antivirus"/>
+        <Product id="mdr"/>
+        <Product id="xdr"/>
+    </Products>
   <automatic_sdu_submission Enabled="true"/>
   <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
   <customer id="b67ee4d2-baef-b4b6-6bf9-19b5ddcb2ef7"/>
+    <server_names>
+        <sdds3>
+            <sus>sustest.sophosupd.com</sus>
+            <content_servers>
+                <server>sdds3test.sophosupd.com</server>
+                <server>sdds3test.sophosupd.net</server>
+            </content_servers>
+        </sdds3>
+    </server_names>
 </AUConfigurations>
 )sophos"
     };

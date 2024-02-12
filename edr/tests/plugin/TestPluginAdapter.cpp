@@ -1,5 +1,5 @@
-// Copyright 2020-2023 Sophos Limited. All rights reserved.
-#include "ALCPoliciesExample.h"
+// Copyright 2020-2024 Sophos Limited. All rights reserved.
+
 
 #include "pluginimpl/PluginUtils.h"
 #include "EdrCommon/ApplicationPaths.h"

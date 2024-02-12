@@ -132,6 +132,15 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=&#13;
     </locations>
   </update_cache>
   <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
+    <server_names>
+        <sdds3>
+            <sus>sustest.sophosupd.com</sus>
+            <content_servers>
+                <server>sdds3test.sophosupd.com</server>
+                <server>sdds3test.sophosupd.net</server>
+            </content_servers>
+        </sdds3>
+    </server_names>
 </AUConfigurations>
 )sophos" };
 
@@ -175,6 +184,15 @@ static const std::string updatePolicyWithProxy{ R"sophos(<?xml version="1.0"?>
   </Features>
   <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
   <customer id="9972e4cf-dba3-e4ab-19dc-77619acac988"/>
+    <server_names>
+        <sdds3>
+            <sus>sustest.sophosupd.com</sus>
+            <content_servers>
+                <server>sdds3test.sophosupd.com</server>
+                <server>sdds3test.sophosupd.net</server>
+            </content_servers>
+        </sdds3>
+    </server_names>
 </AUConfigurations>
 )sophos" };
 
@@ -219,6 +237,15 @@ static const std::string updatePolicyWithScheduledUpdate{ R"sophos(<?xml version
   </Features>
   <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
   <customer id="9972e4cf-dba3-e4ab-19dc-77619acac988"/>
+    <server_names>
+        <sdds3>
+            <sus>sustest.sophosupd.com</sus>
+            <content_servers>
+                <server>sdds3test.sophosupd.com</server>
+                <server>sdds3test.sophosupd.net</server>
+            </content_servers>
+        </sdds3>
+    </server_names>
 </AUConfigurations>
 )sophos" };
 
@@ -317,6 +344,17 @@ static std::string createESMPolicy(const std::string& fixed_version)
     fixed_version
     +
     R"(</AUConfig>
+  <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
+  <customer id="9972e4cf-dba3-e4ab-19dc-77619acac988"/>
+    <server_names>
+        <sdds3>
+            <sus>sustest.sophosupd.com</sus>
+            <content_servers>
+                <server>sdds3test.sophosupd.com</server>
+                <server>sdds3test.sophosupd.net</server>
+            </content_servers>
+        </sdds3>
+    </server_names>
     </AUConfigurations>
 )";
     return esmpolicy;

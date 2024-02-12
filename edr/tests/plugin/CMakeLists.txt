@@ -6,8 +6,6 @@ SophosAddTest(TestPlugin
         TestOsqueryConfigurator.cpp
         TestPluginAdapter.cpp
         TestPluginUtils.cpp
-        ALCPoliciesExample.h
-        ALCPoliciesExample.cpp
         OsqueryTelemetryTests.cpp
         TestOsqueryLogStringUtil.cpp
         PROJECTS pluginimpl
