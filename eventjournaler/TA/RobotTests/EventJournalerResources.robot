@@ -5,6 +5,7 @@ Library         String
 Library         ../Libs/EventjournalerUtils.py
 Library         ${COMMON_TEST_LIBS}/CoreDumps.py
 Library         ${COMMON_TEST_LIBS}/OnFail.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 
 Resource  GeneralResources.robot
 
