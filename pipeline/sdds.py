@@ -264,7 +264,7 @@ def stage_sdds_tests(
             )
             test_machines = get_test_machines(build, parameters)
 
-            robot_args = get_robot_args(parameters)
+            robot_args, single_machine = get_robot_args(parameters)
 
             if parameters.get("central_api_client_id"):
                 robot_args += ["--central-api-client-id", parameters["central_api_client_id"]]
@@ -272,19 +272,34 @@ def stage_sdds_tests(
                 robot_args += ["--central-api-client-secret", parameters["central_api_client_secret"]]
 
 
-            includedtags = parameters.include_tags or default_include_tags
-
-            for include in includedtags.split(","):
+            if single_machine:
                 for machine in test_machines:
-                    robot_args_json = json.dumps(robot_args + ["--include", include])
+                    robot_args_json = json.dumps(robot_args)
 
                     stage_task(
                         stage=stage,
                         coverage_tasks=coverage_tasks,
                         group_name=group_name,
-                        task_name=f"{include}_{build}_{machine}",
+                        task_name=f"{build}_{machine}",
                         build=build,
                         func=run_sdds_tests,
                         machine=stage_tap_machine(machine, inputs, outputs, build),
                         robot_args_json=robot_args_json,
                     )
+            else:
+                includedtags = parameters.include_tags or default_include_tags
+
+                for include in includedtags.split(","):
+                    for machine in test_machines:
+                        robot_args_json = json.dumps(robot_args + ["--include", include])
+
+                        stage_task(
+                            stage=stage,
+                            coverage_tasks=coverage_tasks,
+                            group_name=group_name,
+                            task_name=f"{include}_{build}_{machine}",
+                            build=build,
+                            func=run_sdds_tests,
+                            machine=stage_tap_machine(machine, inputs, outputs, build),
+                            robot_args_json=robot_args_json,
+                        )

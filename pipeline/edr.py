@@ -78,30 +78,44 @@ def stage_edr_tests(
             inputs = get_inputs(context, build_output, build)
             test_machines = get_test_machines(build, parameters)
 
-            robot_args = get_robot_args(parameters)
+            robot_args, single_machine = get_robot_args(parameters)
             includedtags = parameters.include_tags or default_include_tags
 
-            for include in includedtags.split(","):
+            if single_machine:
                 for machine in test_machines:
-                    robot_args_json = json.dumps(robot_args + ["--include", include])
+                    robot_args_json = json.dumps(robot_args)
                     stage_task(
                         stage=stage,
                         coverage_tasks=coverage_tasks,
                         group_name=group_name,
-                        task_name=f"integration_{include}_{build}_{machine}",
+                        task_name=f"integration_{build}_{machine}",
                         build=build,
                         func=run_edr_integration_tests,
                         machine=stage_tap_machine(machine, inputs, outputs, build),
                         robot_args_json=robot_args_json,
                     )
+            else:
+                for include in includedtags.split(","):
+                    for machine in test_machines:
+                        robot_args_json = json.dumps(robot_args + ["--include", include])
+                        stage_task(
+                            stage=stage,
+                            coverage_tasks=coverage_tasks,
+                            group_name=group_name,
+                            task_name=f"integration_{include}_{build}_{machine}",
+                            build=build,
+                            func=run_edr_integration_tests,
+                            machine=stage_tap_machine(machine, inputs, outputs, build),
+                            robot_args_json=robot_args_json,
+                        )
 
-            for machine in test_machines:
-                stage_task(
-                    stage=stage,
-                    coverage_tasks=coverage_tasks,
-                    group_name=group_name,
-                    task_name=f"component_{build}_{machine}",
-                    build=build,
-                    func=run_edr_component_tests,
-                    machine=stage_tap_machine(machine, inputs, outputs, build),
-                )
+                for machine in test_machines:
+                    stage_task(
+                        stage=stage,
+                        coverage_tasks=coverage_tasks,
+                        group_name=group_name,
+                        task_name=f"component_{build}_{machine}",
+                        build=build,
+                        func=run_edr_component_tests,
+                        machine=stage_tap_machine(machine, inputs, outputs, build),
+                    )

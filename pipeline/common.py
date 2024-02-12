@@ -35,14 +35,17 @@ FUZZ_TEMPLATE = "ubuntu2204_x64_aws_server_en_us"
 def get_robot_args(parameters):
     # Add args to pass env vars to RobotFramework.py call in test runs
     robot_args_list = []
+    single_machine = False
     # if mode == DEBUG_MODE:
     #     robot_args_list.append("DEBUG=true")
     if parameters.robot_test:
         robot_args_list.append("--test=" + parameters.robot_test)
+        single_machine = True
     if parameters.robot_suite:
         robot_args_list.append("--suite=" + parameters.robot_suite)
+        single_machine = True
 
-    return robot_args_list
+    return robot_args_list,single_machine
 
 
 def get_suffix(branch_name: str):

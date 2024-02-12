@@ -67,7 +67,7 @@ def stage_ej_tests(
             inputs = get_inputs(context, build_output, outputs[x86_64], build)
             test_machines = get_test_machines(build, parameters)
 
-            robot_args = get_robot_args(parameters)
+            robot_args, single_machine = get_robot_args(parameters)
 
             for machine in test_machines:
                 robot_args_json = json.dumps(robot_args)
