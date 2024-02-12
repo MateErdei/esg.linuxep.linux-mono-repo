@@ -27,6 +27,7 @@ Force Tags    TAP_PARALLEL2    REGRESSION
 *** Test Cases ***
 Check All Sophos Processes Use Sophos Spl Group
     [Tags]    THININSTALLER    RTD_CHECKED
+    [Timeout]    10 minutes
     Start Process Group Check
     Run All Sophos Processes
     Finish Process Group Check
@@ -34,16 +35,17 @@ Check All Sophos Processes Use Sophos Spl Group
 
 *** Keywords ***
 Run All Sophos Processes
-    [Timeout]    10 minutes
     Start Local Cloud Server
     ${handle} =    Start Local SDDS3 Server
     Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
 
+    ${all_plugins_logs_marks} =    Mark All Plugin Logs
     Override LogConf File as Global Level    DEBUG
     Run Process    systemctl restart sophos-spl    shell=${True}
 
     # Wait for persistent processes to be running
     Wait for All Processes To Be Running
+    Wait For Plugins To Be Ready    log_marks=${all_plugins_logs_marks}
 
     # Then make sure non-persistent processes have been run at least once
 
