@@ -119,7 +119,7 @@ def get_test_machines(build: str, parameters: DotDict):
 
     #If adjusting available environments for arch, change if statements below
     available_x64_environments = {
-        'amazonlinux2': 'amzlinux2_x64_server_en_us',
+        'amazonlinux2': 'amzlinux2_x64_k5_server_en_us',
         'amazonlinux2023': 'amzlinux2023_x64_server_en_us',
         'centos79': 'centos7_x64_aws_server_en_us',
         'centos8stream': 'centos8stream_x64_aws_server_en_us',
