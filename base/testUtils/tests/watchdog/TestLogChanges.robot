@@ -155,7 +155,7 @@ Logger Conf should not Control Log Level of MCS Router if Variables are invalid
 Logger Conf sets Log Level of MCS Router to Warning via Global Variable
     [Tags]  MCS
     Override LogConf File as Global Level  WARN
-    Restart Plugin And Return Its Log File  mcsrouter  mcs_router
+    Restart Plugin And Return Its Log File  mcsrouter  mcs_router    ${True}
     Sleep  3 secs
     ${warnLevelLogs} =  Get Log Content For Component And Clear It  mcs_router
 

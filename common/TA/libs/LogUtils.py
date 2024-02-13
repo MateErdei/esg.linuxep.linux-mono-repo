@@ -1095,7 +1095,7 @@ class LogUtils(object):
         self.check_log_contains(string_to_contain, self.sessions_log, "sessions")
 
     def dump_push_server_log(self):
-        server_log = os.path.join(self.tmp_path, "push_server_log.log")
+        server_log = os.path.join(self.tmp_path, "push_server.log")
         self.dump_log(server_log)
 
     def dump_warehouse_log(self):

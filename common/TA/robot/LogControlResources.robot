@@ -10,24 +10,28 @@ Resource   WatchdogResources.robot
 
 *** Keywords ***
 
-Get Log Content For Component
+Get Log Path For Component
     [Arguments]  ${componentName}
     ${relativePath} =  get_relative_log_path_for_log_component_name  ${componentName}
     ${fullPath} =  Set Variable  ${SOPHOS_INSTALL}/${relativePath}
+    [return]  ${fullPath}
+
+Get Log Content For Component
+    [Arguments]  ${componentName}
+    ${fullPath} =  Get Log Path For Component    ${componentName}
     ${logContent}  Get File  ${fullPath}
     [return]  ${logContent}
 
 Get Log Content For Component And Clear It
     [Arguments]  ${componentName}
-    ${relativePath} =  get_relative_log_path_for_log_component_name  ${componentName}
-    ${fullPath} =  Set Variable  ${SOPHOS_INSTALL}/${relativePath}
+    ${fullPath} =  Get Log Path For Component    ${componentName}
     ${logContent}  Get File  ${fullPath}
     Remove File  ${fullPath}
     [return]  ${logContent}
 
 
 Restart Plugin And Return Its Log File
-    [Arguments]  ${pluginName}  ${componentName}
+    [Arguments]  ${pluginName}  ${componentName}  ${is_installed}=${False}
     #Plugin may not be installed yet so stop will return error, ignore
     Run Keyword and Ignore Error   Wdctl stop plugin  ${pluginName}
 
@@ -36,6 +40,8 @@ Restart Plugin And Return Its Log File
 
     #Plugin may not be installed yet so start will return error, ignore
     Run Keyword and Ignore Error  Wdctl Start Plugin  ${pluginName}
+    ${logPath} =  Get Log Path For Component    ${componentName}
+    Run Keyword If  ${is_installed}  Wait For File Exists    ${logPath}
 
     [return]  ${previousLog}
 
@@ -52,16 +58,20 @@ Override Local LogConf File Using Content
     [Arguments]  ${FileContent}
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  content=${FileContent}
 
+Wait For File Exists
+    [Arguments]  ${filePath}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  File Should Exist  ${filePath}
+
 Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log
     [Arguments]  ${componentName}  ${logLevel}  ${keyValue}=VERBOSITY   &{kwargs}
     Log  Setting loglevel to ${logLevel} for component: ${componentName} and subcomponents &{kwargs}
     ${loggerConfContent} =  Get the LoggerConf file For   ${componentName}  ${keyValue}  ${logLevel}  &{kwargs}
 
     ${LOGGERCONF} =  Get Logger Conf Path
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  File Should Exist  ${LOGGERCONF}
+    Wait For File Exists  ${LOGGERCONF}
 
     # use append to file to avoid keywords interfering with one another.
     # if two keywords try to set the loglevel of two different components ( a plugin and suldownloader, for example) both should be enabled

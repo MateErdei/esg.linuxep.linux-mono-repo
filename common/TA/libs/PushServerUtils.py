@@ -25,7 +25,7 @@ class PushServerUtils:
         self._port = 8459
         self._cert = os.path.join( PathManager.get_utils_path(), 'server_certs/server-root.crt')
         self.tmp_path = os.path.join(".", "tmp")
-        self.cloud_server_log = os.path.join(self.tmp_path, "push_server_log.log")
+        self.cloud_server_log = os.path.join(self.tmp_path, "push_server.log")
         self.push_url_pattern = 'https://localhost:{}/mcs/v2/push/device/thisisadevice'
         if os.path.exists(self.cloud_server_log):
             os.remove(self.cloud_server_log)
@@ -152,8 +152,9 @@ class PushServerUtils:
                 raise AssertionError(f"MockMCSPushServer.py immediately exited: {code}: {output}")
             if os.path.isfile(self.cloud_server_log):
                 logger.info("MockMCSPushServer.py log created")
-                # May need to check for particular contents?
-                break
+                if "Listening on port:" in self.mcs_push_server_log():
+                    logger.info("MockMCSPushServer.py listening")
+                    break
             time.sleep(0.1)
 
     def mcs_push_server_log(self):

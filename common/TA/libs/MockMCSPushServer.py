@@ -225,7 +225,7 @@ if __name__ == "__main__":
     ping_time = args.ping_time
     port = args.port
 
-    logging.basicConfig(filename=logpath, level=logging.DEBUG)
+    logging.basicConfig(filename=logpath, level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
     LOGGER.info("Logging information to file: {}".format(os.path.abspath(logpath)))
     LOGGER.info("Applying the certificate: {}".format(os.path.abspath(certfile)))
