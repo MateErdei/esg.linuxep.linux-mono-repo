@@ -6,6 +6,8 @@ Library   OperatingSystem
 Library   /opt/test/inputs/common_test_libs/FullInstallerUtils.py
 Library   /opt/test/inputs/common_test_libs/OSUtils.py
 
+Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
+
 Suite Setup      Global Setup Tasks
 Suite Teardown   Global Teardown Tasks
 
@@ -38,6 +40,13 @@ Global Setup Tasks
     Set Global Variable  ${WEBSOCKET_SERVER}        ${TEST_INPUT_PATH}/pytest_scripts/utils/websocket_server
     Set Global Variable  ${BASE_DIST}               ${TEST_INPUT_PATH}/base
     install_system_ca_cert   ${COMMON_TEST_UTILS}/server_certs/server-root.crt
+
+    Import Library   ${COMMON_TEST_LIBS}/CoreDumps.py
+    CoreDumps.Enable Core Files    Dump All Logs
+
+    Import Library   ${COMMON_TEST_LIBS}/OnFail.py
+    OnFail.register_default_cleanup_action  CoreDumps.Check For Coredumps
+    OnFail.register_default_cleanup_action  CoreDumps.Check Dmesg For Segfaults
 
 Global Teardown Tasks
     Uninstall SSPL

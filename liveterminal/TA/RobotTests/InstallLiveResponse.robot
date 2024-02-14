@@ -1,14 +1,16 @@
 *** Settings ***
 Documentation    Suite description
 
+Resource  ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource  ${COMMON_TEST_ROBOT}/InstallerResources.robot
 Resource  ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
+Resource  ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 Resource  ${COMMON_TEST_ROBOT}/WatchdogResources.robot
 
 Suite Setup     Require Fresh Install
 Suite Teardown  Require Uninstalled
 
-Test Teardown  General Test Teardown
+Test Teardown  General Test Teardown with Cleanup
 
 Default Tags   LIVERESPONSE_PLUGIN
 

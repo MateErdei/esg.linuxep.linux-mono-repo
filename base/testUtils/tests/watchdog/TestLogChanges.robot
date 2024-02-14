@@ -137,7 +137,7 @@ Logger Conf should Control Log Level of MCS Router via Global Variable
     [Tags]  MCS
     Override LogConf File as Global Level  DEBUG
     Restart Plugin And Return Its Log File  mcsrouter  mcs_router
-    Sleep  3 secs
+    Sleep  5 secs
     ${debugLevelLogs} =  Get Log Content For Component And Clear It  mcs_router
 
     Should Contain   ${debugLevelLogs}  DEBUG

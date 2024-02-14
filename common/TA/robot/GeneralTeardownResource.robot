@@ -3,6 +3,7 @@ Library    OperatingSystem
 Library    ${COMMON_TEST_LIBS}/TeardownTools.py
 Library    ${COMMON_TEST_LIBS}/LogUtils.py
 Library    ${COMMON_TEST_LIBS}/CoreDumps.py
+Library    ${COMMON_TEST_LIBS}/OnFail.py
 
 Resource   InstallerResources.robot
 
@@ -113,25 +114,24 @@ Dump All Logs
     Dump Teardown Log    ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/http_test_server.log
 
 Dump All Sophos Processes
-    ${result}=  Run Process    ps -elf | grep sophos    shell=True
+    ${result}=  Run Process    ps -elf | grep sophos    shell=True  stderr=STDOUT
     Log  ${result.stdout}
 
 Log Status Of Sophos Spl
-    ${result} =  Run Process    systemctl  status  sophos-spl
+    ${result} =  Run Process    systemctl  status  sophos-spl  stderr=STDOUT
     Log  ${result.stdout}
-    ${result} =  Run Process    systemctl  status  sophos-spl-update
+    ${result} =  Run Process    systemctl  status  sophos-spl-update  stderr=STDOUT
     Log  ${result.stdout}
-    ${result} =  Run Process    systemctl  status  sophos-spl-diagnose
+    ${result} =  Run Process    systemctl  status  sophos-spl-diagnose  stderr=STDOUT
     Log  ${result.stdout}
 
 Log Systemctl Timers
-    ${result} =  Run Process    systemctl  list-timers
+    ${result} =  Run Process    systemctl  list-timers  stderr=STDOUT
     Log  ${result.stdout}
 
 Log Status Of Rsyslog
-    ${result} =  Run Process    systemctl  status  rsyslog
+    ${result} =  Run Process    systemctl  status  rsyslog  stderr=STDOUT
     Log  ${result.stdout}
-    Log  ${result.stderr}
 
 Check Journalctl
     Analyse Journalctl   print_always=False
@@ -143,21 +143,35 @@ Check Disk Space
     ${result} =    Run Process    df    -hl
     Log    ${result.stdout}
 
+General Test Teardown on failure
+    [Arguments]    ${installDir}
+    Dump All Logs    ${installDir}
+    Check and Dump Journalctl
+    Check Journalctl
+    Log Status Of Rsyslog
+    Log Systemctl Timers
+    Log Status Of Sophos Spl
+    Display All SSPL Files Installed    ${installDir}
+    Display All SSPL Plugins Files Installed    ${installDir}
+    Dump All Sophos Processes
+    Check Disk Space
+
 General Test Teardown
     [Arguments]    ${installDir}=${SOPHOS_INSTALL}
     Require No Unhandled Exception
     CoreDumps.Check For Coredumps  ${TEST NAME}
-    CoreDumps.Check Dmesg For Segfaults
-    Run Keyword If Test Failed    Dump All Logs    ${installDir}
+    CoreDumps.Check Dmesg For Segfaults  ${TEST NAME}
+    Run Keyword If Test Failed    General Test Teardown on failure  ${installDir}
     Remove File                   /tmp/sdds3_server.log
-    Run Keyword If Test Failed    Check and Dump Journalctl
-    Run Keyword If Test Passed    Check Journalctl
-    Run Keyword If Test Failed    Log Status Of Rsyslog
-    Run Keyword If Test Failed    Log Systemctl Timers
-    Run Keyword If Test Failed    Log Status Of Sophos Spl
-    Run Keyword If Test Failed    Display All SSPL Files Installed    ${installDir}
-    Run Keyword If Test Failed    Display All SSPL Plugins Files Installed    ${installDir}
-    Run Keyword If Test Failed    Dump All Sophos Processes
-    Run Keyword If Test Failed    Check Disk Space
     Force Teardown Logging If Env Set
     Combine Coverage If Present
+
+General Test Teardown with Cleanup
+    [Arguments]    ${installDir}=${SOPHOS_INSTALL}
+    Register On Fail If Unique   General Test Teardown on failure  ${installDir}
+
+    Register Cleanup If Unique   Require No Unhandled Exception
+    Register Cleanup If Unique   Remove File   /tmp/sdds3_server.log
+    Register Cleanup If Unique   Force Teardown Logging If Env Set
+    Register Cleanup If Unique   Combine Coverage If Present
+    Run Cleanup Functions

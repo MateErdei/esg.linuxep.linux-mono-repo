@@ -59,6 +59,8 @@ class CoreDumps(object):
         self.__m_ignore_cores_segfaults = False
         self.__m_ignore_cores_segfaults_test = None
         self.__m_log_keyword = "Dump Logs"
+        self.__m_previous_dmesg_test_name = None
+        self.__m_previous_core_check_test_name = None
 
     def enable_core_files(self, log_keyword=None, watchdog_dump_on_timeout=True):
         logger.info("Enabling core dumps")
@@ -68,10 +70,6 @@ class CoreDumps(object):
         # First set local limit to infinity, to cover product and component tests
         resource.setrlimit(resource.RLIMIT_CORE, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
 
-        # allow suid programs to dump core (also for processes with elevated capabilities)
-        sp = subprocess
-        sp.Popen(["sysctl", "fs.suid_dumpable=2"], stdout=sp.PIPE, stderr=sp.STDOUT).wait()
-
         os.makedirs("/z", exist_ok=True)
         os.chmod("/z", 0o777)  # ensure anyone can write to this directory
 
@@ -79,9 +77,13 @@ class CoreDumps(object):
         with open("/proc/sys/kernel/core_pattern", "wb") as f:
             f.write(b"/z/core-%t-%P-%E")
 
+        # allow suid programs to dump core (also for processes with elevated capabilities)
+        sp = subprocess
+        sp.Popen(["sysctl", "fs.suid_dumpable=2"], stdout=sp.PIPE, stderr=sp.STDOUT).wait()
+
+        os.environ['SOPHOS_ENABLE_CORE_DUMP'] = "1"
         if watchdog_dump_on_timeout:
             os.environ['SOPHOS_CORE_DUMP_ON_PLUGIN_KILL'] = "1"
-            os.environ['SOPHOS_ENABLE_CORE_DUMP'] = "1"
 
     @staticmethod
     def disable_core_files():
@@ -97,6 +99,14 @@ class CoreDumps(object):
         logger.info("dmesg output: %s" % ensure_text(stdout, encoding="utf-8", errors="replace"))
 
     def check_dmesg_for_segfaults(self, testname=None):
+        if testname is None:
+            testname = BuiltIn().get_variable_value("${TEST NAME}")
+
+        # Skip if we've already done this for this test
+        if self.__m_previous_dmesg_test_name == testname:
+            return
+        self.__m_previous_dmesg_test_name = testname
+
         sp = subprocess
         dmesg_process = sp.Popen([b"dmesg", b"-T"], stdout=sp.PIPE, stderr=sp.STDOUT)
         stdout = dmesg_process.communicate()[0]
@@ -128,9 +138,6 @@ class CoreDumps(object):
         if len(result) == 0:
             #  no segfaults
             return
-
-        if testname is None:
-            testname = BuiltIn().get_variable_value("${TEST NAME}")
 
         RTD_SEGFAULT_RE = re.compile(r".* error [46] in sophos-subprocess-\d+-exec1 \(deleted\)\[.*")
         CLOUD_SETUP_SEGFAULT_RE = re.compile(
@@ -208,6 +215,12 @@ class CoreDumps(object):
     def check_for_coredumps(self, testname=None):
         if testname is None:
             testname = BuiltIn().get_variable_value("${TEST NAME}")
+
+        # Skip if we've already done this for this test
+        if self.__m_previous_core_check_test_name == testname:
+            return
+        self.__m_previous_core_check_test_name = testname
+
         CORE_DIR = "/z"
 
         if not os.path.exists(CORE_DIR):

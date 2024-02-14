@@ -5,6 +5,7 @@ Library     ${COMMON_TEST_LIBS}/ActionUtils.py
 Library     ${COMMON_TEST_LIBS}/FullInstallerUtils.py
 Library     ${COMMON_TEST_LIBS}/LiveResponseUtils.py
 Library     ${COMMON_TEST_LIBS}/LogUtils.py
+Library     ${COMMON_TEST_LIBS}/OnFail.py
 
 Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/InstallerResources.robot
@@ -203,14 +204,14 @@ LiveResponse Telemetry Test Setup
     ...  Check Live Response Plugin Running
 
 LiveResponse Telemetry Test Teardown
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log  ${telemetryFileContents}
-    General Test Teardown
-    Restore Original Live Response Terminal Binary
-    Remove file  ${TELEMETRY_OUTPUT_JSON}
-    Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
-    Cleanup Telemetry Server
-    Remove File  ${EXE_CONFIG_FILE}
+    register_cleanup_if_unique   Remove File  ${EXE_CONFIG_FILE}
+    register_cleanup_if_unique   Cleanup Telemetry Server
+    register_cleanup_if_unique   Restore Original Live Response Terminal Binary
+    register_cleanup_if_unique   Dump Teardown Log    ${TELEMETRY_OUTPUT_JSON}
+
+    register_on_fail_if_unique   Dump Teardown Log  ${HTTPS_LOG_FILE_PATH}
+    General Test Teardown with Cleanup
+
 
 
 Swap Out Real Terminal With One That Always Returns Success

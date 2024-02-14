@@ -10,6 +10,7 @@ Library     ${COMMON_TEST_LIBS}/WebsocketWrapper.py
 Library     String
 Library     OperatingSystem
 
+Resource    ${COMMON_TEST_ROBOT}/GeneralTeardownResource.robot
 Resource    ${COMMON_TEST_ROBOT}/LiveResponseResources.robot
 Resource    ${COMMON_TEST_ROBOT}/LogControlResources.robot
 Resource    ${COMMON_TEST_ROBOT}/ManagementAgentResources.robot
