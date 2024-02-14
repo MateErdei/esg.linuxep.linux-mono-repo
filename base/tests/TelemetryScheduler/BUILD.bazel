@@ -1,7 +1,7 @@
 # Copyright 2023-2024 Sophos Limited. All rights reserved.
-load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_test")
 
-spl_independent_cc_tests(
+soph_cc_test(
     name = "TelemetrySchedulerTests",
     srcs = glob([
         "*.cpp",

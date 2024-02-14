@@ -1,5 +1,5 @@
-load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
-load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library", "soph_cc_test")
 
 soph_cc_library(
     name = "TaskQueueImpl",
@@ -10,7 +10,7 @@ soph_cc_library(
     ],
 )
 
-spl_independent_cc_tests(
+soph_cc_test(
     name = "TaskQueueTests",
     srcs = glob([
         "*.cpp",

@@ -1,20 +1,12 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
-load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_test")
 
-HELPER_SOURCES = [
-    "TimeStamp.cpp",
-]
-
-spl_independent_cc_tests(
+soph_cc_test(
     name = "UpdateSchedulerTests",
-    srcs = glob(
-        [
-            "*.cpp",
-            "*.h",
-        ],
-        exclude = HELPER_SOURCES,
-    ),
-    per_test_srcs = HELPER_SOURCES,
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
     deps = [
         "//base/modules/Common/FileSystemImpl",
         "//base/modules/Common/Logging",

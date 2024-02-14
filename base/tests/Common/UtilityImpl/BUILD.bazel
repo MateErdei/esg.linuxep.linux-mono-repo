@@ -1,6 +1,5 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
-load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
-load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library", "soph_cc_test")
 
 soph_cc_library(
     name = "MockFormattedTime",
@@ -16,7 +15,7 @@ soph_cc_library(
     visibility = ["//common:spl_packages"],
 )
 
-spl_independent_cc_tests(
+soph_cc_test(
     name = "TimeUtilsTests",
     srcs = [
         "TestTimeUtils.cpp",
@@ -28,7 +27,7 @@ spl_independent_cc_tests(
     ],
 )
 
-spl_independent_cc_tests(
+soph_cc_test(
     name = "FileUtilsTests",
     srcs = [
         "TestFileUtils.cpp",
@@ -40,7 +39,7 @@ spl_independent_cc_tests(
     ],
 )
 
-spl_independent_cc_tests(
+soph_cc_test(
     name = "OrderedSetTests",
     srcs = [
         "TestOrderedSet.cpp",
@@ -51,7 +50,7 @@ spl_independent_cc_tests(
     ],
 )
 
-spl_independent_cc_tests(
+soph_cc_test(
     name = "StringUtilsTests",
     srcs = [
         "TestStringUtils.cpp",
@@ -64,7 +63,7 @@ spl_independent_cc_tests(
     ],
 )
 
-spl_independent_cc_tests(
+soph_cc_test(
     name = "UniformIntDistributionTests",
     srcs = [
         "TestUniformIntDistribution.cpp",
@@ -75,7 +74,7 @@ spl_independent_cc_tests(
     ],
 )
 
-spl_independent_cc_tests(
+soph_cc_test(
     name = "UuidTests",
     srcs = [
         "TestUuid.cpp",
@@ -86,7 +85,7 @@ spl_independent_cc_tests(
     ],
 )
 
-spl_independent_cc_tests(
+soph_cc_test(
     name = "VectorAsSetTests",
     srcs = [
         "TestVectorAsSet.cpp",
@@ -97,7 +96,7 @@ spl_independent_cc_tests(
     ],
 )
 
-spl_independent_cc_tests(
+soph_cc_test(
     name = "WaitForUtilsTests",
     srcs = [
         "TestWaitForUtils.cpp",

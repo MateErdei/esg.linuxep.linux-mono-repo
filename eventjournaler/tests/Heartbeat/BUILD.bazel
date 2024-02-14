@@ -1,6 +1,5 @@
-# Copyright 2023 Sophos Limited. All rights reserved.
-load("//common:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
-load("//tools/config:soph_rules.bzl", "soph_cc_library")
+# Copyright 2023-2024 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library", "soph_cc_test")
 
 soph_cc_library(
     name = "FakeTimeutils",
@@ -13,7 +12,7 @@ soph_cc_library(
     ],
 )
 
-spl_independent_cc_tests(
+soph_cc_test(
     name = "TestHeartbeat",
     srcs = ["TestHeartbeat.cpp"],
     linkopts = select({
