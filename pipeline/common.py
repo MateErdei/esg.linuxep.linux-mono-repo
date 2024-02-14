@@ -54,9 +54,10 @@ def get_suffix(branch_name: str):
     return "-" + branch_name
 
 
-def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
+def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str,
+                        storage: str = 'esg-build-tested'):
     """Return an input artifact from an unified pipeline build"""
-    artifact = context.artifact.from_component(component, branch, org='', storage='esg-build-tested')
+    artifact = context.artifact.from_component(component, branch, org='', storage=storage)
     # Using the truediv operator to set the sub directory forgets the storage option
     artifact.sub_directory = sub_directory
     return artifact
@@ -351,9 +352,9 @@ def pip_install(machine: tap.Machine, *install_args: str):
                        "--progress-bar", "off",
                        "--disable-pip-version-check",
                        "--default-timeout", "120"]
-    machine.run("pip3", 'install', "pip", "--upgrade", *pip_index_args,
+    machine.run(pip(machine), 'install', "pip", "--upgrade", *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR, timeout=300)
-    machine.run("pip3", '--log', '/opt/test/logs/pip.log',
+    machine.run(pip(machine), '--log', '/opt/test/logs/pip.log',
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR, timeout=300)
 
@@ -361,10 +362,8 @@ def pip_install(machine: tap.Machine, *install_args: str):
 def python(machine: tap.Machine):
     return "python3"
 
-
 def pip(machine: tap.Machine):
     return "pip3"
-
 
 def test_arch(arch):
     return {
@@ -594,7 +593,7 @@ def run_robot_tests(
             )
 
     finally:
-        machine.run("python3", machine.inputs.test_scripts / "move_robot_results.py", timeout=60)
+        machine.run(python(machine), machine.inputs.test_scripts / "move_robot_results.py", timeout=60)
         machine.output_artifact("/opt/test/logs", "logs")
         machine.output_artifact("/opt/test/results", "results")
         machine.output_artifact("/opt/test/coredumps", "coredumps", raise_on_failure=False)

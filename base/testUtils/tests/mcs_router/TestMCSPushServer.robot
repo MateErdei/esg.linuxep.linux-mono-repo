@@ -32,8 +32,6 @@ Client Should Detect Push Server Disconnection
     Check Server Stops Connection
 
 Client Should Detect Push Server Goes Away
-    # TODO: LINUXDAR-8285: Fix use of openssl on TAP templates so that this test can run
-    [Tags]    TESTFAILURE
     Start MCS Push Server
     Start SSE Client
     Check MCS Push Message Sent    Single Message

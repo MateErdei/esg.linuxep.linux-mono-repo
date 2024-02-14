@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-
-import requests
+import ssl
 from http.client import HTTPSConnection
+import requests
 import sys
 from sseclient import SSEClient
 import subprocess
 import time
 import os
-import ssl
 import PathManager
 try:
     from robot.api import logger
 except:
     import logging
     logger = logging.getLogger(__name__)
+
 
 class PushServerUtils:
     """Utilities to verify the MCS Push Service Requirements that can be used with the Robot Framework.
@@ -23,7 +23,7 @@ class PushServerUtils:
         self._client = None
         self._server = None
         self._port = 8459
-        self._cert = os.path.join( PathManager.get_utils_path(), 'server_certs/server-root.crt')
+        self._cert = os.path.join(PathManager.get_utils_path(), 'server_certs/server-root.crt')
         self.tmp_path = os.path.join(".", "tmp")
         self.cloud_server_log = os.path.join(self.tmp_path, "push_server.log")
         self.push_url_pattern = 'https://localhost:{}/mcs/v2/push/device/thisisadevice'
@@ -40,9 +40,8 @@ class PushServerUtils:
         self._cert = cert
 
     def send_message_to_push_server(self, message=None):
-        """Use the subscription channel to send messages to all the clients connected to the push server."""
         context = ssl.create_default_context(cafile=self._cert)
-        conn = HTTPSConnection("localhost", self._port, context=context)
+        conn = HTTPSConnection(host="localhost", port=self._port, context=context)
         conn._http_vsn_str = 'HTTP/1.1'
         conn._http_vsn = 11
         conn.request('POST', '/mcs/push/sendmessage', body=message)
@@ -110,8 +109,17 @@ class PushServerUtils:
             data = next(self._client)
         except StopIteration:
             return 'stop'
-        except requests.exceptions.ConnectionError as ex:
+        except (requests.exceptions.ConnectionError, ssl.SSLError) as ex:
             logger.info("Exception: type {} content {}".format(type(ex), ex))
+
+            # For cases where python < 3.9 and OpenSSL3 are being used, the following error will be thrown
+            # Newer python versions have fixes to work around this error, but they were not backported to python 3.7/3.8
+            # https://github.com/dask/distributed/issues/5607
+            if isinstance(ex, ssl.SSLError):
+                if "[SSL: KRB5_S_TKT_NYV] unexpected eof while reading" not in str(ex):
+                    logger.error("Unexpected ssl.SSLError")
+                    raise ex
+
             return 'abort'
         text = data.data
         if not text:

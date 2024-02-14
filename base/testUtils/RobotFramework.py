@@ -49,6 +49,7 @@ def main():
         'suite': '*',
         "variable": [
             "COMMON_TEST_ROBOT:/opt/test/inputs/common_test_robot",
+            "COMMON_TEST_LIBS:/opt/test/inputs/common_test_libs"
         ],
     }
 
