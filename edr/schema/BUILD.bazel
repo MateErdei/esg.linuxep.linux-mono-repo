@@ -1,14 +1,10 @@
 # Copyright 2024 Sophos Limited. All rights reserved.
-load("@rules_python//python:defs.bzl", "py_binary")
-load(":schema.bzl", "schema")
-
-py_binary(
-    name = "schema_builder",
-    srcs = ["schema_builder.py"],
-)
+load("//tools/src/table_schema:schema.bzl", "schema")
 
 schema(
     name = "schema",
+    platform = "linux",
     table_headers = "//edr/modules/osqueryextensions:table_headers",
+    url_prefix = "https://github.com/sophos-internal/esg.linuxep.linux-mono-repo/blob/develop/edr/modules/osqueryextensions/",
     visibility = ["//edr:__pkg__"],
 )
