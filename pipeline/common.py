@@ -133,6 +133,7 @@ def get_test_machines(build: str, parameters: DotDict):
         'debian12': 'debian12_x64_aws_server_en_us',
         'oracle7': 'oracle79_x64_aws_server_en_us',
         'oracle8': 'oracle87_x64_aws_server_en_us',
+        'oracle9': 'oracle92_x64_aws_server_en_us',
         'rhel7': 'rhel79_x64_aws_server_en_us',
         'rhel8': 'rhel87_x64_aws_server_en_us',
         'rhel9': 'rhel91_x64_aws_server_en_us',
@@ -154,6 +155,7 @@ def get_test_machines(build: str, parameters: DotDict):
         'centos9stream': 'centos9stream_arm64_server_en_us',
         'debian11': 'debian11_arm64_server_en_us',
         'debian12': 'debian12_arm64_server_en_us',
+        'oracle9': 'oracle92_arm64_server_en_us',
         'rhel9': 'rhel91_arm64_server_en_us',
         'sles15': 'sles15_arm64_sp5_server_en_us',
         'ubuntu1804': 'ubuntu1804_arm64_server_en_us',
@@ -260,6 +262,14 @@ def get_test_machines(build: str, parameters: DotDict):
         test_environments["x64"][platform] = available_x64_environments.get(platform, [])
     elif parameters.run_oracle_8 == "dont_run":
         test_environments["x64"].pop(platform, None)
+
+    platform = 'oracle9'
+    if parameters.run_oracle_9 == "force_run":
+        test_environments["x64"][platform] = available_x64_environments.get(platform, [])
+        test_environments["arm64"][platform] = available_arm64_environments.get(platform, [])
+    elif parameters.run_oracle_9 == "dont_run":
+        test_environments["x64"].pop(platform, None)
+        test_environments["arm64"].pop(platform, None)
 
     platform = 'rhel7'
     if parameters.run_rhel_7 == "force_run":

@@ -16,6 +16,7 @@ Library    ${COMMON_TEST_LIBS}/TeardownTools.py
 
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
+Resource    ../shared/SafeStoreResources.robot
 
 Suite Setup    uninstall_sspl_if_installed
 
@@ -33,13 +34,16 @@ ${CUSTOM_ON_ACCESS_LOG_PATH}          ${CUSTOM_AV_PLUGIN_PATH}/log/soapd.log
 ${CUSTOM_CLOUDSCAN_LOG_PATH}          ${CUSTOM_AV_PLUGIN_PATH}/log/Sophos Cloud Scheduled Scan.log
 ${CUSTOM_SAFESTORE_LOG_PATH}          ${CUSTOM_AV_PLUGIN_PATH}/log/safestore.log
 ${CUSTOM_THREAT_DETECTOR_LOG_PATH}    ${CUSTOM_AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
-
+${CUSTOM_DISABLE_SAFESTORE_FILEPATH}         ${CUSTOM_AV_PLUGIN_PATH}/var/disable_safestore
 
 *** Test Cases ***
 CLS Can Detect Threats When SPL Is Installed In Custom Location
+    Disable Safestore    ${CUSTOM_DISABLE_SAFESTORE_FILEPATH}
+    Register Cleanup    Enable Safestore    ${CUSTOM_DISABLE_SAFESTORE_FILEPATH}
     Directory Should Exist    ${CUSTOM_INSTALL_LOCATION}
     Directory Should Not Exist    ${SOPHOS_INSTALL}
     check avscanner can detect eicar
+
 
 Scheduled Scan Can Run When SPL Is Installed In Custom Location
     Configure Scan Now for Custom Install

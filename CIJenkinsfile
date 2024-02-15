@@ -27,6 +27,7 @@ def params = [
     choice(name: 'run_debian_12', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Debian 12'),
     choice(name: 'run_oracle_7', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Oracle Linux 7'),
     choice(name: 'run_oracle_8', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Oracle Linux 8'),
+    choice(name: 'run_oracle_9', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on Oracle Linux 9'),
     choice(name: 'run_rhel_7', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on RHEL 7'),
     choice(name: 'run_rhel_8', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on RHEL 8'),
     choice(name: 'run_rhel_9', choices: ['default', 'force_run', 'dont_run'], description: 'Run TAP on RHEL 9'),

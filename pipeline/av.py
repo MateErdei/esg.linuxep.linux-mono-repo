@@ -30,7 +30,7 @@ def include_cifs_for_machine_name(template):
 
 
 def include_ntfs_for_machine_name(template):
-    no_ntfs = ("amzlinux2023", "oracle79", "oracle87", "rhel79", "rhel87", "rhel91", "sles12", "sles15")
+    no_ntfs = ("amzlinux2023", "oracle79", "oracle87", "oracle92", "rhel79", "rhel87", "rhel91", "sles12", "sles15")
     distro = template.split("_")[0]
     if distro in no_ntfs:
         return False
@@ -59,6 +59,7 @@ def is_redhat_based(template):
         "centos9stream",
         "oracle79",
         "oracle87",
+        "oracle92",
         "rhel79",
         "rhel87",
         "rhel91",

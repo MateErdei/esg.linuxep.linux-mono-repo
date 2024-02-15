@@ -18,7 +18,7 @@ ${SAFESTORE_DB_PASSWORD_PATH}         ${SAFESTORE_DB_DIR}/safestore.pw
 ${SAFESTORE_TELEMETRY_BACKUP_JSON}    ${SSPL_BASE}/telemetry/cache/safestore-telemetry.json
 
 ${THREAT_DATABASE_PATH}               ${COMPONENT_VAR_DIR}/persist-threatDatabase
-
+${DISABLE_SAFESTORE_FILEPATH}         ${AV_VAR_DIR}/disable_safestore
 
 *** Keywords ***
 Start SafeStore Manually
@@ -126,3 +126,11 @@ Remove All But One SafeStore Backup
             Remove Values From List    ${safeStoreDatabaseBackupDirs}    ${dir}
         END
     END
+
+Disable Safestore
+    [Arguments]    ${file_path}=${DISABLE_SAFESTORE_FILEPATH}
+    Create File    ${file_path}
+
+Enable Safestore
+    [Arguments]    ${file_path}=${DISABLE_SAFESTORE_FILEPATH}
+    Remove File    ${file_path}
