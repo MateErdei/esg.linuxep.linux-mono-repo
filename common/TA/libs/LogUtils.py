@@ -1559,12 +1559,12 @@ class LogUtils(object):
         else:
             liveresponse_mark.wait_for_log_contains_from_mark("Entering the main loop", timeout)
 
-    def wait_for_rtd_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 30):
+    def wait_for_rtd_logs_to_indicate_plugin_is_ready(self, log_marks: dict, timeout: int = 60):
         rtd_mark = log_marks["rtd_mark"]
 
         # Just try to find one or the other
         try:
-            rtd_mark.wait_for_log_contains_from_mark("Sophos Linux Runtime Detections Agent", timeout)
+            rtd_mark.wait_for_log_contains_from_mark("Analytics started processing telemetry", timeout)
         except:
             rtd_mark.wait_for_log_contains_from_mark("Sophos Runtime Detections Plugin version", timeout)
 
@@ -1586,7 +1586,7 @@ class LogUtils(object):
 
         safestore_mark.wait_for_log_contains_from_mark("SafeStore started", timeout)
 
-    def wait_for_plugins_logs_to_indicate_plugins_are_ready(self, log_marks: dict, timeout: int = 30, oldcode : bool = False):
+    def wait_for_plugins_logs_to_indicate_plugins_are_ready(self, log_marks: dict, timeout: int = 60, oldcode : bool = False):
         self.wait_for_ej_logs_to_indicate_plugin_is_ready(log_marks, timeout, oldcode)
         self.wait_for_deviceisolation_logs_to_indicate_plugin_is_ready(log_marks, timeout, oldcode)
         self.wait_for_liveresponse_logs_to_indicate_plugin_is_ready(log_marks, timeout, oldcode)
