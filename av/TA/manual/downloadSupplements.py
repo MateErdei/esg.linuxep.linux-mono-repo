@@ -8,13 +8,10 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 # ml data
 
 import argparse
-import glob
 import hashlib
 import json
 import os
 import shutil
-import subprocess
-import sync_sdds3_supplement
 import sys
 import zipfile
 
@@ -25,7 +22,6 @@ if PY2:
 else:
     from urllib.request import urlopen as urllib_urlopen
     from urllib.request import urlretrieve as urllib_urlretrieve
-    from urllib.error import URLError
 
 LOGGER = None
 

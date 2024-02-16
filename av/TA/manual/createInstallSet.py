@@ -27,12 +27,12 @@ def log(*x):
         LOGGER.info(" ".join(x))
 
 
-def download_supplements(dest):
+def download_supplements(dest, arm64=False):
     # ensure manual dir is on sys.path
     downloadSupplements.LOGGER = LOGGER
 
     args = Args()
-    args.arm64 = True
+    args.arm64 = arm64
     updated = downloadSupplements.run(ensure_unicode(dest), args)
     return updated
 
@@ -94,13 +94,22 @@ def create_install_set(install_set, sdds_component, base):
     return setup_install_set(install_set, sdds_component, vdl, ml_model, lrdata)
 
 
-def create_install_set_if_required(install_set, sdds_component, base):
-    updated = download_supplements(base)
+def create_install_set_if_required(install_set, sdds_component, base, arm64=False):
+    updated = download_supplements(base, arm64=arm64)
     log("Finished downloading supplements:", str(updated))
     if verify_install_set(install_set, sdds_component) and not updated:
+        log("Install set already up to date at", install_set)
         return 0
-    log("Creating install set")
+    log("Creating install set at", install_set)
     return create_install_set(install_set, sdds_component, ensure_binary(base))
+
+
+def find_av_component() -> bytes:
+    p = ".output/av/linux_x64_rel/installer"
+    if os.path.isdir(p):
+        return ensure_binary(p)
+
+    return b"/opt/test/inputs/av/SDDS-COMPONENT"
 
 
 def main(argv):
@@ -114,7 +123,7 @@ def main(argv):
     elif len(argv) == 1:
         # /opt/test/inputs/av/INSTALL-SET /opt/test/inputs/av/SDDS-COMPONENT /opt/test/inputs/av/..
         install_set = ensure_binary("/opt/test/inputs/av/INSTALL-SET")
-        sdds_component = ensure_binary("/opt/test/inputs/av/SDDS-COMPONENT")
+        sdds_component = find_av_component()
         base = "/opt/test/inputs"
         return create_install_set_if_required(install_set, sdds_component, base)
 

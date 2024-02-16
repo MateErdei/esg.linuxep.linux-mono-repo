@@ -17,25 +17,19 @@ function failure()
 }
 
 echo BASE=$BASE
-INPUTS_ROOT=$BASE/../..
 AV_ROOT=/opt/test/inputs/av
-[[ ! -f $AV_ROOT/SDDS-COMPONENT/install.sh ]] && AV_ROOT=${INPUTS_ROOT}/av
-[[ ! -f $AV_ROOT/SDDS-COMPONENT/install.sh ]] && AV_ROOT=${INPUTS_ROOT}/output
-[[ -f ${AV_ROOT}/SDDS-COMPONENT/manifest.dat ]] || failure 1 "Can't find SDDS-COMPONENT: ${AV_ROOT}/SDDS-COMPONENT/manifest.dat"
-TEST_SUITE=${BASE}/..
+AV_INSTALL_SET=${AV_ROOT}/INSTALL-SET
 
-SDDS_AV=${AV_ROOT}/INSTALL-SET
-PYTHON=${PYTHON:-python3}
-${PYTHON} $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_ROOT}/.." || failure 2 "Failed to create install-set: $?"
-[[ -d $SDDS_AV ]] || failure 2 "Can't find SDDS_AV: $SDDS_AV"
-[[ -f $SDDS_AV/install.sh ]] || failure 3 "Can't find $SDDS_AV/install.sh"
+bash $BASE/setupAV.sh
+
+[[ -d $AV_INSTALL_SET ]] || failure 2 "Can't find AV_INSTALL_SET: $AV_INSTALL_SET"
+[[ -f $AV_INSTALL_SET/install.sh ]] || failure 3 "Can't find $AV_INSTALL_SET/install.sh"
 # Check supplements are present:
-[[ -f $SDDS_AV/files/plugins/av/chroot/susi/update_source/vdl/vdl.dat ]] || failure 3 "Can't find $SDDS_AV/files/plugins/av/chroot/susi/update_source/vdl/vdl.dat"
-[[ -f $SDDS_AV/files/plugins/av/chroot/susi/update_source/reputation/filerep.dat ]] || failure 3 "Can't find $SDDS_AV/files/plugins/av/chroot/susi/update_source/reputation/filerep.dat"
-[[ -f $SDDS_AV/files/plugins/av/chroot/susi/update_source/model/model.dat ]] || failure 3 "Can't find $SDDS_AV/files/plugins/av/chroot/susi/update_source/model/model.dat"
+[[ -f $AV_INSTALL_SET/files/plugins/av/chroot/susi/update_source/vdl/vdl.dat ]] || failure 3 "Can't find $AV_INSTALL_SET/files/plugins/av/chroot/susi/update_source/vdl/vdl.dat"
+[[ -f $AV_INSTALL_SET/files/plugins/av/chroot/susi/update_source/reputation/filerep.dat ]] || failure 3 "Can't find $AV_INSTALL_SET/files/plugins/av/chroot/susi/update_source/reputation/filerep.dat"
+[[ -f $AV_INSTALL_SET/files/plugins/av/chroot/susi/update_source/model/model.dat ]] || failure 3 "Can't find $AV_INSTALL_SET/files/plugins/av/chroot/susi/update_source/model/model.dat"
 
 SOPHOS_INSTALL=/opt/sophos-spl
 
 ## Install AV
-chmod 700 "${SDDS_AV}/install.sh"
-bash $INSTALL_AV_BASH_OPTS "${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
+bash $INSTALL_AV_BASH_OPTS "${AV_INSTALL_SET}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
