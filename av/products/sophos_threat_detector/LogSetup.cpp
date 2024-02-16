@@ -72,7 +72,7 @@ namespace
         log4cplus::initialize();
 
         log4cplus::tstring datePattern;
-        constexpr long maxFileSize = 10 * 1024 * 1024;
+        constexpr long maxFileSize = 1024 * 1024;
         const int maxBackupIndex = 10;
         const bool immediateFlush = true;
         const bool createDirs = true;

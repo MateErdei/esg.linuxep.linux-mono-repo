@@ -18,7 +18,7 @@ log4cplus::Logger& getNamedScanRunnerLogger();
 class Logger
 {
 private:
-    void setupFileLoggingWithPath(std::string logfilepath);
+    void setupFileLoggingWithPath(const std::string& logfilepath);
     void applyCommandLineLevel(const log4cplus::LogLevel& CLSlogLevel);
 
 public:

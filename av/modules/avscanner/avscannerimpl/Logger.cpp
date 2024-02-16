@@ -61,10 +61,10 @@ Logger::~Logger()
 }
 
 // Same as Common::Logging::FileLoggingSetup::setupFileLoggingWithPath(const std::string& logfilepath) but does not log to stderr
-void Logger::setupFileLoggingWithPath(std::string logfilepath)
+void Logger::setupFileLoggingWithPath(const std::string& logfilepath)
 {
     log4cplus::tstring datePattern;
-    const long maxFileSize = 10 * 1024 * 1024;
+    const long maxFileSize = 1024 * 1024;
     const int maxBackupIndex = 10;
     const bool immediateFlush = true;
     const bool createDirs = true;
