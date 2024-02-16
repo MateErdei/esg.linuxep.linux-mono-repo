@@ -3,7 +3,8 @@
 # define TEST_PUBLIC public
 
 #include "pluginimpl/Telemetry.h"
-
+#include "common/ApplicationPaths.h"
+#include "common/StatusFile.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include "Common/FileSystem/IFileSystem.h"
@@ -33,12 +34,16 @@ namespace
             fs::remove_all(m_basePath);
             fs::create_directories(m_basePath);
 
-            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-            appConfig.setData("PLUGIN_INSTALL", m_basePath);
-
             //creating file for vdl version
             m_vdlDirPath = m_basePath;
             m_vdlDirPath /= "chroot/susi/update_source/vdl";
+
+            //For on-access-status tests
+            auto var = m_basePath / "var";
+            fs::create_directories(var);
+
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData("PLUGIN_INSTALL", m_basePath);
 
             m_mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
@@ -387,4 +392,24 @@ TEST_F(TestTelemetry, getTelemetry_vdl_size)
     createIdes(modifiedExpectedVdlIdeCount, m_vdlDirPath, "abcdefghij");
     json modifiedTelemetry = json::parse(telemetry.getTelemetry());
     EXPECT_EQ(modifiedTelemetry["vdl-size"], 60);
+}
+
+TEST_F(TestTelemetry, telemetry_reports_on_access_enabled)
+{
+    auto telemetry = realTelemetry();
+    auto path = Plugin::getOnAccessStatusPath();
+    auto statusFile = std::make_shared<common::StatusFile>(path);
+    statusFile->enabled();
+    auto modifiedTelemetry = json::parse(telemetry.getTelemetry());
+    EXPECT_EQ(modifiedTelemetry["on-access-status"], true);
+}
+
+TEST_F(TestTelemetry, telemetry_reports_on_access_disabled)
+{
+    auto telemetry = realTelemetry();
+    auto path = Plugin::getOnAccessStatusPath();
+    auto statusFile = std::make_shared<common::StatusFile>(path);
+    statusFile->disabled();
+    auto modifiedTelemetry = json::parse(telemetry.getTelemetry());
+    EXPECT_EQ(modifiedTelemetry["on-access-status"], false);
 }

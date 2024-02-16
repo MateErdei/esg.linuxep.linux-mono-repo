@@ -4,10 +4,13 @@
 // Package
 #include "Logger.h"
 // Component
+#include "common/ApplicationPaths.h"
 #include "common/PluginUtils.h"
+#include "common/StatusFile.h"
 #include "datatypes/sophos_filesystem.h"
 // Product
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/SystemCallWrapper/SystemCallWrapper.h"
 #include "Common/UtilityImpl/StringUtils.h"
@@ -181,6 +184,7 @@ std::string Telemetry::getTelemetry()
     telemetry.set("ml-pe-model-version", getMlModelVersion());
     telemetry.set("vdl-version", getVirusDataVersion());
     telemetry.set("version", common::getPluginVersion());
+    telemetry.set("on-access-status", common::StatusFile::isEnabled(getOnAccessStatusPath()));
 
     auto [memoryUsage, processAge] = getThreatScannerProcessinfo();
     telemetry.set("threatMemoryUsage", memoryUsage);

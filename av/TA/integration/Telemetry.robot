@@ -54,15 +54,7 @@ AV plugin runs scheduled scan and updates telemetry
 
     Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
 
-    Run Telemetry Executable With HTTPS Protocol    port=${4421}
-
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log   ${telemetryFileContents}
-
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
-
-    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${1}
+    Check AV Telemetry    scheduled-scan-count   ${1}
 
 
 AV Plugin Can Send Telemetry
@@ -104,15 +96,7 @@ AV Plugin Scan Now Updates Telemetry Count
     # run a scan, count should increase to 1
     Configure and run scan now
 
-    Run Telemetry Executable With HTTPS Protocol    port=${4421}
-
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log   ${telemetryFileContents}
-
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
-
-    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${1}
+    Check AV Telemetry    scan-now-count   ${1}
 
     av_log_contains_only_one_no_saved_telemetry_per_start
 
@@ -141,16 +125,9 @@ AV plugin Saves and Restores Scan Now Counter
     ${av_mark} =  Mark AV Log
     Start AV Plugin
     Wait For AV Log Contains After Mark  Restoring telemetry from disk for plugin: av  ${av_mark}
-    Run Telemetry Executable With HTTPS Protocol    port=${4434}
 
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log   ${telemetryFileContents}
-
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
-
-    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${1}
-    Dictionary Should Contain Item   ${avDict}   threatHealth   ${1}
+    Check AV Telemetry    scan-now-count   ${1}
+    Check AV Telemetry    threatHealth   ${1}
 
 
 AV plugin increments Scan Now Counter after Save and Restore
@@ -178,15 +155,7 @@ AV plugin increments Scan Now Counter after Save and Restore
     # run a scan, count should increase to 1
     Configure and run scan now
 
-    Run Telemetry Executable With HTTPS Protocol  port=${4435}
-
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log   ${telemetryFileContents}
-
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
-    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${2}
-
+    Check AV Telemetry    scan-now-count   ${2}
 
 On Access Provides Mount Info Telemetry
     # Run telemetry to reset counters to 0
@@ -263,25 +232,25 @@ On Access ML Scanning Is Reported Correctly To Telemetry
     Send CORE Policy To Base  core_policy/CORE-36_oa_enabled.xml
     wait for on access log contains after mark  On-access scanning enabled  mark=${soapd_mark}
 
-    Run Telemetry Executable With HTTPS Protocol  port=${4435}
-
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log   ${telemetryFileContents}
-
-    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
-    Dictionary Should Contain Item   ${avDict}   ml-scanning-enabled   True
+    Check AV Telemetry    ml-scanning-enabled   True
 
     ${av_mark} =  Mark AV Log
     Send CORE Policy To Base  core_policy/CORE-36_ml_disabled.xml
     Wait for av log contains after mark     Machine Learning detections disabled  mark=${av_mark}
 
-    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+    Check AV Telemetry    ml-scanning-enabled   False
 
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log   ${telemetryFileContents}
 
-    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
-    Dictionary Should Contain Item   ${avDict}   ml-scanning-enabled   False
+On Access Status Is Represented In Telemetry
+    ${soapd_mark} =  Get on access log mark
 
+    Send CORE Policy To Base  core_policy/CORE-36_oa_enabled.xml
+    wait for on access log contains after mark  On-access scanning enabled  mark=${soapd_mark}
+
+    Check AV Telemetry    on-access-status    True
+
+    ${soapd_mark} =  Get on access log mark
+    Send CORE Policy To Base  core_policy/CORE-36_oa_disabled.xml
+    wait for on access log contains after mark      On-access scanning disabled  mark=${soapd_mark}
+
+    Check AV Telemetry   on-access-status   False
