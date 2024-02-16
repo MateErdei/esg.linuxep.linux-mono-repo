@@ -11,6 +11,7 @@
 #include "Common/UtilityImpl/TimeUtils.h"
 
 #include <cassert>
+#include <cmath>
 
 namespace Common::ProcessMonitoringImpl
 {
@@ -27,6 +28,7 @@ namespace Common::ProcessMonitoringImpl
     ProcessProxy::ProcessProxy(Common::Process::IProcessInfoPtr processInfo) :
         m_processInfo(std::move(processInfo)), m_sharedState()
     {
+        resetBackoff();
         m_exe = m_processInfo->getExecutableFullPath();
         if ((!m_exe.empty()) && m_exe[0] != '/')
         {
@@ -251,25 +253,28 @@ namespace Common::ProcessMonitoringImpl
                 lock_acquired_stop();
             }
             // We don't want it running - wait a long time before calling again
-            return std::chrono::hours(1);
+            return m_maximumBackoff; // 1 hour
         }
         else if (m_sharedState.m_running)
         {
             // Running and we want it running, so wait a long time before calling again
-            return std::chrono::hours(1);
+            resetBackoff();
+            return m_maximumBackoff; // 1 hour
         }
 
         // Restart immediately if last exit was with RESTART_EXIT_CODE
+        auto currentBackoff = getCurrentBackoff();
         time_t now = ::time(nullptr);
-        if (m_sharedState.m_lastExit == RESTART_EXIT_CODE || (now - m_sharedState.m_deathTime) > 10)
+        if (m_sharedState.m_lastExit == RESTART_EXIT_CODE || (now - m_sharedState.m_deathTime) >= currentBackoff.count())
         {
             start();
-            return std::chrono::hours(1);
+            increaseBackoff();
+            return currentBackoff;
         }
         else
         {
             LOGDEBUG("Not starting " << m_exe);
-            return std::chrono::seconds(10 - (now - m_sharedState.m_deathTime));
+            return std::chrono::seconds(currentBackoff.count() - (now - m_sharedState.m_deathTime));
         }
     }
 
@@ -339,6 +344,34 @@ namespace Common::ProcessMonitoringImpl
         {
             m_processTerminationCallbackPipe->notify();
         }
+    }
+
+    void ProcessProxy::resetBackoff()
+    {
+        m_unsuccessfulConsecutiveRestarts = 0;
+    }
+
+    void ProcessProxy::increaseBackoff()
+    {
+        // Don't need to worry about buffer overflow as it would require watchdog trying to restart a broken plugin
+        // ~2 billion times (which would take more than 2 billion hours as backoff would reach the 1-hour limit)
+        // Even if an overflow did happen the variable would just reset back to 0 which won't cause a crash
+        m_unsuccessfulConsecutiveRestarts++;
+    }
+
+    /**
+     * Idea was to have backoff be a geometric series that doubles backoff each unsuccessful and consecutive restart
+     * n = m_unsuccessfulConsecutiveRestarts (default is 0)
+     * a = m_minimumBackoff (10)
+     * r = 2
+     * backoff of given n = a * r ^ n
+     * backoff caps off at m_maximumBackoff (3600)
+     */
+    std::chrono::seconds ProcessProxy::getCurrentBackoff()
+    {
+        auto calculatedBackoff = static_cast<std::chrono::duration<double>>(m_minimumBackoff)
+                * std::pow(2.0, m_unsuccessfulConsecutiveRestarts);
+        return std::min(std::chrono::duration_cast<std::chrono::seconds>(calculatedBackoff), m_maximumBackoff);
     }
 
 } // namespace Common::ProcessMonitoringImpl

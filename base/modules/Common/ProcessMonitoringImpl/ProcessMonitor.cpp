@@ -112,7 +112,7 @@ namespace Common::ProcessMonitoringImpl
             }
 
             // Child may have exited, or socket request may have altered state.
-            timeout = std::chrono::seconds(10);
+            timeout = std::chrono::hours(1); // Want a maximum of 1 hour wait
             {
                 std::lock_guard<std::mutex> lock(m_processProxiesMutex);
                 for (auto& proxy : m_processProxies)
@@ -122,7 +122,7 @@ namespace Common::ProcessMonitoringImpl
                     timeout = std::min(waitPeriod, timeout);
                 }
             }
-            timeout = std::max(timeout, std::chrono::seconds(1)); // Ensure we wait at least 1 second
+            timeout = std::max(timeout, std::chrono::seconds(10)); // Ensure we wait at least 10 seconds
             LOGDEBUG("timeout = " << timeout.count());
         }
 

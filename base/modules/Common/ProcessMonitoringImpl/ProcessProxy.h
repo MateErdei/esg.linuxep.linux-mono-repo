@@ -2,6 +2,10 @@
 
 #pragma once
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 #include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessInfo.h"
 #include "Common/ProcessMonitoring/IProcessProxy.h"
@@ -145,5 +149,25 @@ namespace Common::ProcessMonitoringImpl
          * Full path to the executable
          */
         std::string m_exe;
+
+        /**
+         * Increments m_unsuccessfulConsecutiveRestarts
+         */
+        void increaseBackoff();
+
+        /**
+         * Calculates current backoff - m_minimumBackoff * 2 ^ (m_unsuccessfulConsecutiveRestarts - 1)
+         */
+        std::chrono::seconds getCurrentBackoff();
+
+        /**
+         * Resets m_unsuccessfulConsecutiveRestarts to 0
+         */
+        void resetBackoff();
+
+    TEST_PUBLIC:
+        const std::chrono::seconds m_minimumBackoff{10};
+        const std::chrono::seconds m_maximumBackoff{3600};
+        unsigned int m_unsuccessfulConsecutiveRestarts;
     };
 } // namespace Common::ProcessMonitoringImpl
