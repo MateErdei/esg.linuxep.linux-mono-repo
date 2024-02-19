@@ -23,13 +23,18 @@ DEBUG_OUTPUT_ON=0 # 0 = off, 1 = on
 INSECURE_RPATH_EXISTS=0
 printf "Starting search for binaries and checking rpaths\n"
 
-for executable_path in $(find /opt/sophos-spl/ -type f ! -size 0 ! -name "*.ide" ! -name "*.vdb" -exec grep -IL . "{}" \;) # Finding binaries in /opt/sophos-spl/
+for executable_path in $(find /opt/sophos-spl/ -type f ! -size 0 \
+      ! -name "*.ide" \
+      ! -name "*.zip" \
+      ! -name "*.dat" \
+      ! -name "*.vdb" \
+      -exec grep -IL . "{}" \;) # Finding binaries in /opt/sophos-spl/
 do
   if [[ $DEBUG_OUTPUT_ON -eq 1 ]]
   then
     printf "[[DEBUG]]: Executable path: $executable_path\n"
   fi
-  rpath_line="$(objdump -x $executable_path | grep PATH)"
+  rpath_line="$(objdump -x $executable_path | grep ' \(R\|RUN\)PATH ')"
 
   # Split rpath string by separator
   separator=' '
