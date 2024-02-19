@@ -24,6 +24,7 @@ Resource    GlobalSetup.robot
 Resource    DumpLog.robot
 Resource    ${COMMON_TEST_ROBOT}/SafeStoreResources.robot
 Resource    ${COMMON_TEST_ROBOT}/AVResources.robot
+Resource    ErrorMarkers.robot
 
 *** Variables ***
 ${AV_PLUGIN_PATH}                               ${COMPONENT_ROOT_PATH}
@@ -625,6 +626,12 @@ Wait until file size changes
         ...    ${timeout} secs
         ...    1 secs
         ...    File size is different  ${filename}  ${orig_size}
+
+Produce long string
+    [Arguments]   ${lenght}=249
+    ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c ${lenght}  shell=True
+    ${s}=  Set Variable   ${long_string.stdout}
+    [Return]    ${s}
 
 Wait Until AV Plugin Log exists
     [Arguments]  ${timeout}=15  ${interval}=0

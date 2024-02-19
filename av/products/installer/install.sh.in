@@ -212,6 +212,7 @@ function apply_permissions()
     chmod -R 0710 "${PLUGIN_INSTALL}/sbin"
     chmod -R 0700 "${PLUGIN_INSTALL}/sbin/ssr"
     chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/sbin"
+    chown -R root:root "${PLUGIN_INSTALL}/sbin/safestore_extract_tool"
 
     mkdir -p "${PLUGIN_INSTALL}/log"
     chmod 0770 "${PLUGIN_INSTALL}/log"

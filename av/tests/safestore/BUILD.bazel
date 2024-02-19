@@ -26,6 +26,7 @@ soph_cc_test(
         "//av/modules/safestore",
         "//av/modules/safestore/QuarantineManager",
         "//av/modules/safestore/SafeStoreWrapper",
+        "//av/modules/safestore_extract",
         "//av/tests/common",
         "//av/tests/unixsocket:Mocks",
         "//base/modules/Common/ApplicationConfiguration:IApplicationConfiguration",

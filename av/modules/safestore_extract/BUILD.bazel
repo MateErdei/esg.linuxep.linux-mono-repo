@@ -1,0 +1,42 @@
+# Copyright 2024 Sophos Limited. All rights reserved.
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "Logger",
+    srcs = ["Logger.cpp"],
+    hdrs = ["Logger.h"],
+    visibility = ["//av/modules/safestore:__subpackages__"],
+    deps = [
+        "//base/modules/Common/Logging",
+    ],
+)
+
+soph_cc_library(
+    name = "safestore_extract",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    hdrs = [
+        "Extractor.h",
+    ],
+    linkopts = [
+        "-Wl,-rpath,/opt/sophos-spl/plugins/av/lib64:$$ORIGIN/../lib64",
+    ],
+    visibility = [
+        "//av/products/safestore:__pkg__",
+        "//av/tests:__subpackages__",
+    ],
+    deps = [
+        "//av/modules/common:ApplicationPaths",
+        "//av/modules/common:StringUtils",
+        "//av/modules/safestore/SafeStoreWrapper",
+        "//base/modules/Common/FileSystem",
+        "//base/modules/Common/Logging",
+        "//base/modules/Common/UtilityImpl:StringUtils",
+        "//base/modules/Common/ZipUtilities",
+        "//common/modules/Common/Main",
+        "@log4cplus",
+        "@nlohmann_json//:json",
+    ],
+)

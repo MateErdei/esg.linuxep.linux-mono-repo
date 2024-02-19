@@ -16,3 +16,22 @@ soph_cc_binary(
         "//common/modules/Common/Main",
     ],
 )
+
+soph_cc_binary(
+    name = "safestore_extract_tool",
+    srcs = [
+        "safestore_extract_main.cpp",
+    ],
+    linkopts = [
+        "-Wl,-rpath,/opt/sophos-spl/plugins/av/lib64:$$ORIGIN/../lib64",
+    ],
+    visibility = ["//av/products/distribution:__pkg__"],
+    deps = [
+        "//av/modules/common:config",
+        "//av/modules/datatypes:sophos_filesystem",
+        "//av/modules/safestore",
+        "//av/modules/safestore_extract",
+        "//base/modules/Common/ApplicationConfiguration:IApplicationConfiguration",
+        "//common/modules/Common/Main",
+    ],
+)

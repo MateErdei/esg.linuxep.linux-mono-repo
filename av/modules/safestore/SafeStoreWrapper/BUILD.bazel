@@ -26,6 +26,8 @@ soph_cc_library(
     ]),
     visibility = [
         "//av/modules/safestore:__subpackages__",
+        "//av/modules/safestore_extract:__subpackages__",
+        "//av/products/safestore:__pkg__",
         "//av/tests:__subpackages__",
         "//av/tools:__subpackages__",
     ],

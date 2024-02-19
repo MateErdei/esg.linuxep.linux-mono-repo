@@ -1,6 +1,6 @@
 
 *** Settings ***
-Library         ../Libs/LogUtils.py
+Library         ${COMMON_TEST_LIBS}/LogUtils.py
 
 *** Keywords ***
 
@@ -15,4 +15,5 @@ on fail dump logs
     dump log  ${SUSI_DEBUG_LOG_PATH}
     dump log  ${THREAT_DETECTOR_LOG_PATH}
     dump log  ${SAFESTORE_LOG_PATH}
+    dump log  ${AV_PLUGIN_PATH}/log/safestore_extract.log
     dump log  ${ON_ACCESS_LOG_PATH}

@@ -46,6 +46,7 @@ SRCS_RENAMED = {
     "files/plugins/av/lib64/libstdc++.so.6.0.29": "@gcc//:libstdc++",
     "files/plugins/av/sbin/av": "//av/products/plugin:av",
     "files/plugins/av/sbin/safestore": "//av/products/safestore",
+    "files/plugins/av/sbin/safestore_extract_tool": "//av/products/safestore:safestore_extract_tool",
     "files/plugins/av/sbin/scheduled_file_walker_launcher": "//av/products/filewalker:scheduled_file_walker_launcher",
     "files/plugins/av/sbin/soapd": "//av/products/sophos_on_access_process:soapd",
     "files/plugins/av/sbin/sophos_threat_detector": "//av/products/sophos_threat_detector:sophos_threat_detector",

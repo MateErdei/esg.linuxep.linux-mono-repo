@@ -10,7 +10,9 @@
 #include <boost/property_tree/ptree.hpp>
 #include <log4cplus/loggingmacros.h>
 
+#include <fstream>
 #include <iostream>
+#include <memory>
 
 namespace
 {
@@ -167,15 +169,15 @@ namespace Common::Logging
          * logging must not depend on fileSystem
          *
          */
-        LoggerConfigTree(const std::string& confFilePath);
+        explicit LoggerConfigTree(const std::string& confFilePath);
 
         /** if session is empty, it will find the verbosity defined for global or no session associated.
          *
          * return empty string if VERBOSITY does not exist in the session
          * */
-        std::string getVerbosity(const std::string& session = "") const;
+        [[nodiscard]] std::string getVerbosity(const std::string& session = "") const;
 
-        bool hasSession(const std::string& session) const;
+        [[nodiscard]] bool hasSession(const std::string& session) const;
 
         void mergeConfigTree(const LoggerConfigTree& treeToMerge);
 
@@ -247,7 +249,7 @@ namespace Common::Logging
     {
         pt::ptree ptreeToMerge = treeToMerge.getPTree();
 
-        for (auto entry : ptreeToMerge)
+        for (const auto& entry : ptreeToMerge)
         {
             m_ptree.erase(entry.first);
             m_ptree.push_back(std::make_pair(entry.first, entry.second));
@@ -270,7 +272,7 @@ namespace Common::Logging
 
         try
         {
-            m_configTree = std::unique_ptr<LoggerConfigTree>(new LoggerConfigTree(pathMan.getLogConfFilePath()));
+            m_configTree = std::make_unique<LoggerConfigTree>(pathMan.getLogConfFilePath());
 
             if (FileSystem::fileSystem()->isFile((pathMan.getLocalLogConfFilePath())))
             {

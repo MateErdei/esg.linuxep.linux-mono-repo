@@ -103,8 +103,8 @@ Send ThreatType with json To Safestore
 
 Send very long ThreatType To Safestore
     Create File  /tmp/testfile
-    ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
-    ${result} =  Send TDO To socket  threat_type=${long_string.stdout}
+    ${s}=     Produce long string  50000
+    ${result} =  Send TDO To socket  threat_type=${s}
     Wait for SafeStore log contains after mark    Failed to store threats: Couldn't set object custom data 'threats' to    mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     Mark expected error in log    ${SAFESTORE_LOG_PATH}    Failed to store threat type
 
@@ -131,8 +131,8 @@ Send ThreatName with json To Safestore
 
 Send very long threatname To Safestore
     Create File  /tmp/testfile
-    ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
-    ${result} =  Send TDO To socket  threatname=${long_string.stdout}
+    ${s}=     Produce long string  50000
+    ${result} =  Send TDO To socket  threatname=${s}
     wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send Filepath with json To Safestore
@@ -156,8 +156,7 @@ Send Filepath with null char Safestore
     wait_for_safestore_log_contains_after_mark  Quarantined /tmp/file\000 successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send very long Filepath To Safestore
-    ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 249  shell=True
-    ${s}=  Set Variable   ${long_string.stdout}
+    ${s}=     Produce long string
     ${long_filepath}=  Set Variable   /tmp/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}
     Create File  ${long_filepath}
     Register Cleanup   Remove Directory  /tmp/${s}  recursive=True
@@ -303,7 +302,7 @@ Send threatid with xml To Safestore
 
 Send very long threatid To Safestore
     Create File  /tmp/testfile
-    ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
-    ${result} =  Send TDO To socket  threatid=${long_string.stdout}
+    ${s}=     Produce long string  50000
+    ${result} =  Send TDO To socket  threatid=${s}
     wait_for_safestore_log_contains_after_mark  Aborting SafeStoreServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStoreServerConnectionThread: failed to parse detection
