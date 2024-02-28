@@ -28,7 +28,7 @@ def get_susi_configuration(versions_to_return = None):
     # Keys: known data types
     # Values: corresponding attributes in the "SUSI Libraries loaded:" JSON
     #         data structure, or None    
-    attribute_map = (
+    attribute_map = {
         'SFS_Data': "vdb",
         'SFS_Engine': "savi",
         'ML_Data': "mldata",
@@ -56,13 +56,13 @@ def get_susi_configuration(versions_to_return = None):
                     except json.decoder.JSONDecodeError:
                         json_struct = None
                         continue
-                        
+
                     if json_struct:
                         for data_type in versions:
                             json_attr = attribute_map[data_type]
                             if json_attr in json_struct:
                                 versions[data_type] = json_struct[json_attr]
     except Exception:
-        logger.warn("Error: could not read " + logfile)
-        
+        logger.warn("Error: could not read the threat detector log!")
+
     return versions
