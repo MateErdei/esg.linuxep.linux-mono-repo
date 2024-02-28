@@ -10,7 +10,7 @@ from robot.api import logger
 
 
 THREAT_DETECTOR_LOG = "/opt/sophos-spl/plugins/av/chroot/log/sophos_threat_detector.log"
-VERSIONS_LINE_RE = r"SUSI Libraries loaded: (\{.*?\})"
+VERSIONS_LINE_RE = r"SUSI Libraries loaded: (\{.*?\})$"
 
 
 def get_vdb_and_engine_versions(logfile = THREAT_DETECTOR_LOG):
@@ -28,10 +28,10 @@ def get_vdb_and_engine_versions(logfile = THREAT_DETECTOR_LOG):
             for line in log:
                 m = re.search(VERSIONS_LINE_RE, line)
                 if m:
-                    maybe_json = m.group(0)
+                    maybe_json = m.group(1)
                     try:
                         json_struct = json.loads(maybe_json)
-                    except JSONDecodeError:
+                    except json.decoder.JSONDecodeError:
                         continue
                         
                     if json_struct:
@@ -40,6 +40,6 @@ def get_vdb_and_engine_versions(logfile = THREAT_DETECTOR_LOG):
                         if 'vdb' in json_struct:
                             versions['VDB'] = json_struct['vdb']
     except Exception:
-        logger.warning("Error: could not read " + logfile)
+        logger.warn("Error: could not read " + logfile)
         
     return versions
