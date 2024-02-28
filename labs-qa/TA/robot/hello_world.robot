@@ -1,7 +1,7 @@
 *** Settings ***
 Library   BuiltIn
 Library   ${COMMON_TEST_LIBS}/IniUtils.py
-Library   ../VersionInfo.py
+Library   ../libs/VersionInfo.py
 
 
 *** Test Cases ***
